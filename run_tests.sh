@@ -17,6 +17,9 @@
 # Download package management tooling
 pip3 install pipenv
 
+# regenerate pipfile.lock because I had to add scikit-learn
+pipenv update
+
 # Download pre-requisite packages.
 PIPENV_VENV_IN_PROJECT=1
 pipenv sync --dev
@@ -24,4 +27,9 @@ pipenv sync --dev
 # Run tests
 TF_CPP_MIN_LOG_LEVE=3
 PYTHONPATH="${PYTHONPATH}:$(dirname "$0")"
+
+## fix an issue with the policysaver
+## https://github.com/GrahamDumpleton/wrapt/issues/231
+export WRAPT_DISABLE_EXTENSIONS=true
+
 pipenv run python3 -m pytest

@@ -1,0 +1,25 @@
+Bootstrap: docker
+From: python:3.9
+Stage: spython-base
+
+%files
+. .
+%post
+
+mkdir -p /ml-compiler-opt
+cd /ml-compiler-opt
+pip install pipenv && pipenv sync --system && pipenv --clear
+
+mkdir -p /ml-compiler-opt/compiler_opt/tools
+cd /ml-compiler-opt/compiler_opt/tools
+PYTHONPATH=/ml-compiler-opt
+
+# VOLUME /external
+%environment
+export PYTHONPATH=/ml-compiler-opt
+%runscript
+cd /ml-compiler-opt/compiler_opt/tools
+exec /bin/bash "$@"
+%startscript
+cd /ml-compiler-opt/compiler_opt/tools
+exec /bin/bash "$@"
