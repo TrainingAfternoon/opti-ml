@@ -8,10 +8,11 @@ source $VENVPATH/bin/activate
 
 # install dependencies
 echo "Installing LLVM dependencies"
-sudo apt-get install ninja-build lld lipthreadpool-dev gcc-multilib g++-multilib zlibig-dev libgss-dev liblzma-dev libxml2-dev ccache automake
+sudo apt-get install ninja-build lld
 
 # tensorflow stuff
 echo "Doing the tensorflow stuff"
+sudo apt-get install ccache gcc-multilib g++-multilib libxml2-dev automake libpthreadpool-dev
 TF_PIP=$(python3 -m pip show tensorflow | grep Location | cut -d ' ' -f 2)
 
 export TENSORFLOW_AOT_PATH="${TF_PIP}/tensorflow"
