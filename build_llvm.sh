@@ -27,19 +27,19 @@ $OPTIML_SRCDIR/buildbot/build_tflite.sh
 ## https://llvm.org/docs/GettingStarted.html#hardware
 ## https://llvm.org/docs/GettingStarted.html#getting-the-source-code-and-building-llvm
 ## https://llvm.org/docs/CMake.html#cmake-build-type
-#echo "Building LLVM"
-#cd $LLVM_SRCDIR
-#mkdir -p build
-#cd build
-#cmake \
-#	-G "Ninja" \
-#	-S $LLVM_SRCDIR/llvm \
-#	-DLLVM_ENABLE_PROJECTS='clang' \
-#	-DCMAKE_INSTALL_PREFIX='~/workspace/llvm-install' \
-#	-DCMAKE_BUILD_TYPE='Debug' \
-#	-DLLVM_USE_LINKER=lld \
-#	-C ${TFLITE_PATH}/tflite.cmake  \
-#ninja check-llvm clang
+echo "Building LLVM"
+cd $LLVM_SRCDIR
+mkdir -p build
+cd build
+cmake \
+	-G "Ninja" \
+	-S $LLVM_SRCDIR/llvm \
+	-DLLVM_ENABLE_PROJECTS='clang' \
+	-DCMAKE_INSTALL_PREFIX='~/workspace/llvm-install' \
+	-DCMAKE_BUILD_TYPE='Debug' \
+	-DLLVM_USE_LINKER=lld \
+	-C ${TFLITE_PATH}/tflite.cmake
+ninja check-llvm clang
 
 echo "Done"
 deactivate
