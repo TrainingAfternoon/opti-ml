@@ -13,9 +13,11 @@ curl -s "https://fuchsia.googlesource.com/fuchsia/+/HEAD/scripts/bootstrap?forma
 echo "export PATH=$PATH:$HOME/fuchsia/.jiri_root/bin" >> $HOME/.profile
 echo "source $HOME/fuchsia/scripts/fx-env.sh" >> $HOME/.profile
 
+source $HOME/.profile
+
 # install IDK
 cipd install fuchsia/sdk/core/linux-arm64 latest -root ${IDK_DIR}
 
 # install sysroot
 cipd install fuchsia/sysroot/linux-arm64 latest -root ${SYSROOT_DIR}/linux-arm64
-#cipd install fuchsia/sysroot/linux-amd64 latest -root ${SYSROOT_DIR}/linux-x64
+cipd install fuchsia/sysroot/linux-amd64 latest -root ${SYSROOT_DIR}/linux-x64
