@@ -20,7 +20,34 @@ export TFLITE_PATH=$HOME/tflite
 mkdir ${TFLITE_PATH}
 
 cd ${TFLITE_PATH}
-$OPTIML_SRCDIR/buildbot/build_tflite.sh
+#sudo apt-get install -qq -y \
+#        python3-distutils \
+#        python-is-python3 \
+#        g++ \
+#        ccache \
+#        binutils-gold \
+#        binutils-dev \
+#        ninja-build \
+#        pkg-config \
+#        gcc-multilib \
+#        g++-multilib \
+#        gawk \
+#        dos2unix \
+#        libxml2-dev \
+#        rsync \
+#        git \
+#        libtool \
+#        m4 \
+#        automake \
+#        libgcrypt-dev \
+#        liblzma-dev \
+#        libssl-dev \
+#        libgss-dev \
+#        libpthreadpool-dev \
+#        python3-dev \
+#        wget \
+#        zlib1g-dev
+#$OPTIML_SRCDIR/buildbot/build_tflite.sh
 
 # build the LLVM build scripts
 ## RESOURCES:
@@ -34,7 +61,6 @@ cd build
 cmake \
   -G "Ninja" \
   -DLLVM_ENABLE_PROJECTS='clang' \
-  -DLLVM_USE_LINKER=lld \
   -DLLVM_ENABLE_LTO=OFF \
   -DLINUX_x86_64-unknown-linux-gnu_SYSROOT=${SYSROOT_DIR}/linux-x64 \
   -DLINUX_aarch64-unknown-linux-gnu_SYSROOT=${SYSROOT_DIR}/linux-arm64 \
