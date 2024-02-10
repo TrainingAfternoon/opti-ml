@@ -130,6 +130,7 @@ class TrainingIRExtractor:
                                is_thinlto: bool, cmd_section_name: str,
                                bitcode_section_name: str) -> Optional[str]:
     """Run llvm-objcopy to extract the .bc and command line."""
+    print("Extracting", self.input_obj())
     if not os.path.exists(self.input_obj()):
       logging.info('%s does not exist.', self.input_obj())
       return None
@@ -222,6 +223,9 @@ def convert_compile_command_to_objectfile(
     logging.info('Command has no -o option: %s', ' '.join(cmd_parts))
     return None
   obj_rel_path = cmd_parts[obj_index]
+  if '.o' not in obj_rel_path:
+      logging.info(f"Skipping {obj_rel_path} because it is not an object file")
+      return None # this will get filtered out
   # TODO(mtrofin): is the obj_base_dir correct for thinlto index bc files?
   return TrainingIRExtractor(
       obj_relative_path=obj_rel_path,

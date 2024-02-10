@@ -24,7 +24,8 @@ python3 compiler_opt/tools/extract_ir.py \
   --input=$INPUTPATH/compile_commands.json \
   --input_type=json \
   --llvm_objcopy_path=$LLVM_INSTALLDIR/bin/llvm-objcopy \
-  --output_dir=$CORPUS
+  --output_dir=$CORPUS \
+  --verbosity 0
 
 chown -R student:student $CORPUS
 
