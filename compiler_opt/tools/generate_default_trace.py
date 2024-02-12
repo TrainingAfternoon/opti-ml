@@ -205,5 +205,6 @@ def generate_trace(
 
 
 if __name__ == '__main__':
+  logging.set_verbosity(logging.DEBUG)
   flags.mark_flag_as_required('data_path')
   multiprocessing.handle_main(functools.partial(app.run, main))

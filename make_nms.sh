@@ -8,4 +8,3 @@ export CC=$LLVM_INSTALLDIR/bin/clang
 cd $HOME/no-more-secrets
 make clean
 bear -- make nms
-

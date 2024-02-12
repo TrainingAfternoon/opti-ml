@@ -5,7 +5,7 @@ source $VENVPATH/bin/activate
 
 echo "PYTHONPATH=$PYTHONPATH"
 
-#rm -rf $DEFAULT_TRACE 
+rm $DEFAULT_TRACE
 
 pipenv run python3 compiler_opt/tools/generate_default_trace.py \
 	--data_path=$CORPUS \
@@ -14,6 +14,6 @@ pipenv run python3 compiler_opt/tools/generate_default_trace.py \
 	--gin_bindings=config_registry.get_configuration.implementation=@configs.InliningConfig \
 	--gin_bindings=clang_path="'$LLVM_INSTALLDIR/bin/clang'" \
 	--gin_bindings=llvm_size_path="'$LLVM_INSTALLDIR/bin/llvm-size'" \
-	--sampling_rate=0.2
+	--sampling_rate=1.0
 
 deactivate

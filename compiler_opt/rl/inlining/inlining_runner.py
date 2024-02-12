@@ -68,7 +68,6 @@ class InliningRunner(compilation_runner.CompilationRunner):
       cancelled work.
       RuntimeError: if llvm-size produces unexpected output.
     """
-
     working_dir = tempfile.mkdtemp(dir=workdir)
 
     log_path = os.path.join(working_dir, 'log')
@@ -79,7 +78,7 @@ class InliningRunner(compilation_runner.CompilationRunner):
     if self._launcher_path:
       cmdline.append(self._launcher_path)
     cmdline.extend([self._clang_path] + list(command_line) + [
-        '-mllvm', '-enable-ml-inliner=development', '-mllvm', '-training-log=' +
+        '-emit-obj', '-mllvm', '-enable-ml-inliner=development', '-mllvm', '-training-log=' +
         log_path, '-o', output_native_path
     ])
     if tf_policy_path:
@@ -95,10 +94,12 @@ class InliningRunner(compilation_runner.CompilationRunner):
         cancellation_manager=self._cancellation_manager,
         want_output=True)
     if not output_bytes:
+      print(f'Empty llvm-size output: {" ".join(cmdline)}')
       raise RuntimeError(f'Empty llvm-size output: {" ".join(cmdline)}')
     output = output_bytes.decode('utf-8')
     tmp = output.split('\n')
     if len(tmp) != 3:
+      print(f'Empty llvm-size output: {" ".join(cmdline)}')
       raise RuntimeError(f'Wrong llvm-size output {output}')
     tmp = tmp[1].split('\t')
     native_size = int(tmp[0])
