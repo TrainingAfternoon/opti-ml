@@ -9,6 +9,10 @@ source .env
 ## activate virtualenv
 source $VENVPATH/bin/activate
 
+## fix an issue with the policysaver
+## https://github.com/GrahamDumpleton/wrapt/issues/231
+export WRAPT_DISABLE_EXTENSIONS=true
+
 # train the model
 rm -rf $OUTPUT_DIR
 compiler_opt/rl/train_locally.py \
