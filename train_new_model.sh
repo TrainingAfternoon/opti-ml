@@ -15,10 +15,11 @@ export WRAPT_DISABLE_EXTENSIONS=true
 
 # train the model
 rm -rf $OUTPUT_DIR
-compiler_opt/rl/train_locally.py \
+mkdir -p $OUTPUT_DIR
+pipenv run python3 compiler_opt/rl/train_locally.py \
   --root_dir=$OUTPUT_DIR \
   --data_path=$CORPUS \
   --gin_bindings=clang_path="'$LLVM_INSTALLDIR/bin/clang'" \
   --gin_bindings=llvm_size_path="'$LLVM_INSTALLDIR/bin/llvm-size'" \
-  --gin_files=compiler_opt/rl/inlining/gin_configs/ppo_nn_agent.gin \
+  --gin_files=compiler_opt/rl/inlining/gin_configs/nms_ppo_nn_agent.gin \
   --gin_bindings=train_eval.warmstart_policy_dir=\"$WARMSTART_OUTPUT_DIR/saved_policy\"

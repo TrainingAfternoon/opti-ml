@@ -21,6 +21,8 @@ from absl import flags
 from absl import logging
 import gin
 
+from tqdm import tqdm
+
 # <Internal> Using XM - flags.  # pylint: disable=unused-import
 from compiler_opt.rl import agent_config
 from compiler_opt.rl import data_reader

@@ -197,7 +197,7 @@ def create_file_dataset_fn(
             tf.data.experimental.shuffle_and_repeat(shuffle_buffer_size)).map(
                 parser_fn, num_parallel_calls=num_map_threads)
         # Only keep sequences of length 2 or more.
-        .filter(lambda traj: tf.size(traj.reward) > 2))
+        .filter(lambda traj: tf.size(traj.reward) > 2)) # NOTE: this can cause an infinite loop on iter next if there are no valid samples
 
     # TODO(yundi): window and subsample data.
     # TODO(yundi): verify the shuffling is correct.
