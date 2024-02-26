@@ -14,6 +14,6 @@ pipenv run python3 compiler_opt/tools/generate_default_trace.py \
 	--gin_bindings=config_registry.get_configuration.implementation=@configs.InliningConfig \
 	--gin_bindings=clang_path="'$LLVM_INSTALLDIR/bin/clang'" \
 	--gin_bindings=llvm_size_path="'$LLVM_INSTALLDIR/bin/llvm-size'" \
-	--sampling_rate=1.0
+	--sampling_rate=1.0 # NOTE: this was modified from their value of 0.2
 
 deactivate
