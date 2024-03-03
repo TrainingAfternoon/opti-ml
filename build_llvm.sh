@@ -41,6 +41,7 @@ cmake \
 	-DLLVM_USE_ML_POLICY='Rel' \
 	-DLLVM_TF_AOT_RUNTIME=$TENSORFLOW_AOT_PATH \
 	-DLLVM_USE_LINKER=lld \
+	-DLLVM_ENABLE_RUNTIMES="compiler-rt" \
 	-C ${TFLITE_PATH}/tflite.cmake
 cmake --build .
 
