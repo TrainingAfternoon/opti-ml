@@ -30,8 +30,8 @@ $OPTIML_SRCDIR/buildbot/build_tflite.sh
 ## https://lists.llvm.org/pipermail/llvm-dev/2020-April/140763.html
 echo "Building LLVM"
 cd $LLVM_SRCDIR
-mkdir -p build
-cd build
+mkdir -p $LLVM_INSTALLDIR
+cd $LLVM_INSTALLDIR
 cmake \
 	-G "Ninja" \
 	-S $LLVM_SRCDIR/llvm \

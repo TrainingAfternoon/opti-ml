@@ -43,8 +43,8 @@ rm -rf llvm/lib/Analysis/models/inliner/*
 cp -rf $POLICY_DIR/* llvm/lib/Analysis/models/inliner/
 
 ## make build directory
-mkdir -p build
-cd build
+mkdir -p $RELEASE_LLVM_INSTALLDIR
+cd $RELEASE_LLVM_INSTALLDIR
 
 ## perform build
 cmake \
