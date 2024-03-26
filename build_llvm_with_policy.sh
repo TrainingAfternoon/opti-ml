@@ -15,9 +15,9 @@ else
 fi
 echo "Using POLICY_DIR=${POLICY_DIR}"
 
-# NOTE: MAKE SURE THAT LLVM IS CLONED TO RELEASE_LLVM_SRCDIR!
-# cd ${RELEASE_LLVM_SRCDIR} && git clone https://github.com/llvm/llvm-project.git
-# cd ${RELEASE_LLVM_SRCDIR} && git checkout fa4c3f70ff0768a270b0620dc6d158ed1205ec4e
+# NOTE: MAKE SURE THAT LLVM IS CLONED TO LLVM_SRCDIR!
+# cd ${LLVM_SRCDIR} && git clone https://github.com/llvm/llvm-project.git
+# cd ${LLVM_SRCDIR} && git checkout fa4c3f70ff0768a270b0620dc6d158ed1205ec4e
 
 # tensorflow stuff
 echo "Doing the tensorflow stuff"
@@ -35,23 +35,23 @@ export TFLITE_PATH=$HOME/tflite
 
 ## start build process
 echo "Building LLVM"
-cd $RELEASE_LLVM_SRCDIR
+cd $LLVM_SRCDIR
 
 ## move over policy
-cd $RELEASE_LLVM_SRCDIR
+cd $LLVM_SRCDIR
 rm -rf llvm/lib/Analysis/models/inliner/*
 cp -rf $POLICY_DIR/* llvm/lib/Analysis/models/inliner/
 
 ## make build directory
-mkdir -p $RELEASE_LLVM_INSTALLDIR
-cd $RELEASE_LLVM_INSTALLDIR
+mkdir -p $LLVM_INSTALLDIR
+cd $LLVM_INSTALLDIR
 
 ## perform build
 cmake \
 	-G "Ninja" \
-	-S $RELEASE_LLVM_SRCDIR/llvm \
+	-S $LLVM_SRCDIR/llvm \
 	-DLLVM_ENABLE_PROJECTS='clang' \
-	-DCMAKE_INSTALL_PREFIX='${RELEASE_LLVM_INSTALLDIR}' \
+	-DCMAKE_INSTALL_PREFIX='${LLVM_INSTALLDIR}' \
 	-DCMAKE_BUILD_TYPE='Release' \
 	-DLLVM_USE_ML_POLICY='Rel' \
 	-DLLVM_TF_AOT_RUNTIME=$TENSORFLOW_AOT_PATH \

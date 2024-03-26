@@ -8,7 +8,7 @@ source $VENVPATH/bin/activate
 
 # install dependencies
 echo "Installing LLVM dependencies"
-sudo apt-get install ninja-build lld
+#sudo apt-get install ninja-build lld
 
 # tensorflow stuff
 echo "Doing the tensorflow stuff"
@@ -29,12 +29,12 @@ $OPTIML_SRCDIR/buildbot/build_tflite.sh
 ## https://llvm.org/docs/CMake.html#cmake-build-type
 ## https://lists.llvm.org/pipermail/llvm-dev/2020-April/140763.html
 echo "Building LLVM"
-cd $LLVM_SRCDIR
-mkdir -p $LLVM_INSTALLDIR
-cd $LLVM_INSTALLDIR
+cd $RANDOM_LLVM_SRCDIR
+mkdir -p $RANDOM_LLVM_INSTALLDIR
+cd $RANDOM_LLVM_INSTALLDIR
 cmake \
 	-G "Ninja" \
-	-S $LLVM_SRCDIR/llvm \
+	-S $RANDOM_LLVM_SRCDIR/llvm \
 	-DLLVM_ENABLE_PROJECTS='clang' \
 	-DCMAKE_INSTALL_PREFIX='~/workspace/llvm-install' \
 	-DCMAKE_BUILD_TYPE='Release' \
