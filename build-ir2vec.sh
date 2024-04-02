@@ -1,5 +1,6 @@
 # TODO: change this location to where-ever you want the IR2Vec & associated dependencies deposited!
-cd $HOME
+INSTALL_DIR=$HOME
+cd $INSTALL_DIR
 
 # checkout IR2vec
 git clone git@github.com:IITH-Compilers/IR2Vec.git
@@ -27,7 +28,7 @@ rm eigen-3.3.7.tar
 cd IR2Vec
 mkdir build && cd build
 cmake \
-    -DLT_LLVM_INSTALL_DIR=/home/student/workspace/clang+llvm-17.0.1-aarch64-linux-gnu/ \
-    -DEigen3_DIR=/home/student/workspace/eigen-build/ \
+    -DLT_LLVM_INSTALL_DIR=$INSTALL_DIR/clang+llvm-17.0.1-aarch64-linux-gnu/ \
+    -DEigen3_DIR=$INSTALL_DIR/eigen-build/ \
     ..
 make
