@@ -33,7 +33,7 @@ heuristic_values=(
 num_heuristic_values=${#heuristic_values[@]}
 
 # get into the benchmark directory
-cd $_HOME/cpp-perf-benchmarks-2
+cd $_HOME/cpp-perf-benchmarks
 
 LOOPS=0
 while [ $LOOPS -lt $MAX_LOOPS ]
@@ -62,11 +62,16 @@ do
 
     # set result file name
     timestamp=$(date +"%m-%d-%y-%H:%M")
-    RESULTS_FOLDER="$CORPUS/${TEST}-${identifier}-${timestamp}"
+    RESULTS_FOLDER="$CORPUS/${identifier}T${timestamp}"
     mkdir -p $RESULTS_FOLDER
 
+    # compile test artifacts
+    CC=$_HOME/compilers/base-clang/bin/clang CXX=$_HOME/compilers/base-clang/bin/clang++ \
+        EXTRA_CFLAGS="-fprofile-generate -fno-omit-frame-pointer" \
+        EXTRA_CXXFLAGS="-S -emit-llvm -fprofile-generate -fno-omit-frame-pointer" \
+        make all
+
     # run benchmark
-    make all
     make report
 
     # move artifacts to results file
