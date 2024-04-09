@@ -5,7 +5,8 @@
 source .env
 
 MAX_LOOPS="${1:-37000}"
-CORPUS="${_HOME}/ir2perf-corpus"
+#CORPUS="${_HOME}/ir2perf-corpus"
+CORPUS=$IR2PERF_CORPUS
 
 modules=(
     "x265" # https://openbenchmarking.org/test/pts/x265
@@ -20,28 +21,66 @@ modules=(
 
 compilers=(
     "$_HOME/compilers/base-clang/bin/clang"
-    "$_HOME/compilers/random-clang/bin/clang"
+#    "$_HOME/compilers/random-clang/bin/clang" # TODO: why does this sometimes hang?
 )
 
 heuristic_values=(
     "0" # inline nothing
-    "80"
-    "225" # default value
+    "25"
+    "50"
+    "75"
+    "100"
+    "125"
+    "150"
+    "175"
+    "200"
+    "225"
+    "250"
+    "275"
+    "300"
+    "325"
+    "350"
+    "375"
+    "400"
+    "425"
+    "450"
+    "475"
+    "500"
+    "525"
+    "550"
+    "575"
     "600"
-    "1000" # in-line most everything
+    "625"
+    "650"
+    "675"
+    "700"
+    "725"
+    "750"
+    "775"
+    "800"
+    "825"
+    "850"
+    "875"
+    "900"
+    "925"
+    "950"
+    "975"
+    "1000" # inline basically everything
 )
 num_heuristic_values=${#heuristic_values[@]}
 
 # get into the benchmark directory
 cd $_HOME/cpp-perf-benchmarks
+make clean
 
 LOOPS=0
 while [ $LOOPS -lt $MAX_LOOPS ]
 do
     # choose compiler flags
-    _CFLAGS="-O3 -fprofile-generate -fno-omit-frame-pointer -save-temps"
+    _CFLAGS="-lm -fprofile-generate -fno-omit-frame-pointer"
 
-    compiler_idx=$(( ( RANDOM % 2 ) ))
+    #compiler_idx=$(( ( RANDOM % 2 ) ))
+    compiler_idx=0
     _CC=${compilers[$compiler_idx]}
     if [[  ! $_CC =~ .*random.* ]]
     then
@@ -66,9 +105,9 @@ do
     mkdir -p $RESULTS_FOLDER
 
     # compile test artifacts
-    CC=$_HOME/compilers/base-clang/bin/clang CXX=$_HOME/compilers/base-clang/bin/clang++ \
-        EXTRA_CFLAGS="-fprofile-generate -fno-omit-frame-pointer" \
-        EXTRA_CXXFLAGS="-S -emit-llvm -fprofile-generate -fno-omit-frame-pointer" \
+    CC=$_CC CXX=$_CC \
+        EXTRA_CFLAGS=$_CFLAGS \
+        EXTRA_CXXFLAGS=$_CFLAGS \
         make all
 
     # run benchmark
