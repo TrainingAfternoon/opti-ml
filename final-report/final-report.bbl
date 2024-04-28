@@ -1,0 +1,17 @@
+\begin{thebibliography}{1}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Theodoridis et~al.(2022)Theodoridis, Grosser, and
+  Su]{Theodoridis_Grosser_Su_2022}
+Theodoridis, T., Grosser, T., and Su, Z.
+\newblock Understanding and exploiting optimal function inlining.
+\newblock \emph{Proceedings of the 27th ACM International Conference on
+  Architectural Support for Programming Languages and Operating Systems}, Feb
+  2022.
+\newblock \doi{10.1145/3503222.3507744}.
+
+\end{thebibliography}
