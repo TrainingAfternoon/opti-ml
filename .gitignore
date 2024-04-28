@@ -11,6 +11,7 @@ ml_compiler_opt.egg-info/*
 # LaTex
 final-report/*.aux
 final-report/*.blg
+final-report/*.bbl
 final-report/*.fdb_latexmk
 final-report/*.fls
 final-report/*.log

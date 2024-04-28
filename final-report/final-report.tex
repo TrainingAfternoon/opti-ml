@@ -60,7 +60,8 @@
 \begin{document}
 
 \twocolumn[
-\icmltitle{<Working Title>}
+\icmltitle{Opti-ML: An End-to-End Architecture for \\
+ML Guided Inlining for Performance}
 
 % It is OKAY to include author information, even for blind
 % submissions: the style file will automatically remove it for you
@@ -119,22 +120,32 @@ FOO BAR BAZ
 \item Introduce structure of the rest of the paper\@.
 \end{itemize}
 
-Modern C/C++ compilers such as Clang or GCC perform several optimization passes when lowering source code to machine code. A "pass" is a single traversal through either the complete code, or a segment. These optimizations can be performed at several granularities such as Function, Call Graph, Loop, or Module level \cite{lattner2008}. Passes can generally either gather information or perform a transformation on the module of code \cite{llvm-pass-docs}. Some passes may also be run several times, either in sequence or after other passes have been performed to take advantage of new changes introduced by prior passes. Passes have been tenatively organized into pipelines such as -O\{1, 2, 3, s, z\} by compiler authors which optimize for either runtime speed or binary size, at the expense of increased compile time. These pipelines can be quite involved; LLVM's -O3 pass involves approximately 160 optimizations passes which involves optimizations performed at multiple different levels of granularity.
+LLVM is a modern framework for creating compilers. It decouples the parsing of source code from the generation of valid machine code by introducing an intermediate representation (IR) that captures program semantics in a language agnostic format \cite{llvm-paper}. LLVM is also an optimizing compiler. It performs several passes on program IR in an attempt to improve program size, runtime, or both. A "pass" is a single traversal through either the complete code, or a segment. These optimizations can be performed at several granularities such as Function, Call Graph, Loop, or Module level \cite{lattner2008}. Passes can generally either gather information or perform a transformation on the module of code \cite{llvm-pass-docs}. Some passes may also be run several times, either in sequence or after other passes have been performed to take advantage of new changes introduced by prior passes. Passes have been tenatively organized into pipelines such as -O\{1, 2, 3, s, z\} by compiler authors which optimize for either runtime speed or binary size, at the expense of increased compile time. These pipelines can be quite involved; LLVM's -O3 pass involves approximately 160 optimizations passes which involves optimizations performed at multiple different levels of granularity.
 
 % TODO: should I include a vocabulary section?
 
 Function inlining is one of the fundamental optimizations implemented by modern compilers. Function inlining passes are applied at the function level and examine each call site within the function. The decision is then made to either perform inlining or not. Inlining is the replacement of the callsite with the entire function definition. It can be thought of as "copy-pasting" the function definition wherever the function would have been called. Function inlining can improve runtime performance by removing the overhead of jumping to the caller body from the callsite. Additionally, it can improve the performance of downstream optimization passes such as escape analysis by adding more information the current function context \cite{Theodoridis_Grosser_Su_2022}.
 
-Function inlining can have an impact on both the final binary size and the runtime of the final binary. Inlining small functions or functions which are called very infrequently is usually innocuous. The benefit derived from not having to jump to the function definition outweighs the increase in size from duplicating the function definition at each callsite. It becomes more fuzzy when functions are both large and called frequently. Inlining such functions would likely improve the runtime, but would also increase the final binary size. The answer in such a case is not clear. In fact, the inlining problem can be shown as equivalent to a 0-1 knapsack problem, making it NP-complete \cite{Theodoridis_Grosser_Su_2022}.
+Function inlining can have an impact on both the final binary size and the runtime of the final binary. Inlining small functions or functions which are called very infrequently is usually innocuous. The benefit derived from not having to jump to the function definition outweighs the increase in size from duplicating the function definition at each callsite. It becomes more fuzzy when functions are both large and called frequently. Inlining such functions would likely improve the runtime, but would also increase the final binary size. The answer in such a case is not clear. In fact, the inlining problem can be shown as equivalent to a 0-1 knapsack problem, making it NP-complete \cite{Theodoridis_Grosser_Su_2022}. 
 
-Function inlining is traditionally solved by heuristics developed by compiler designers. Designing good heuristics is a non-trivial task, but recent work has shown promise in machine-learned policies as an alternative to manually defined policies \cite{mlgo}. To our knowledge, two prior works have approached function inlining using machine learning methods: MLGO \cite{mlgo} and MLGOPerf \cite{mlgoperf}.
+% TODO: need to find a way to introduce the idea of "inlining for size" and "inlining for sped"
+Function inlining is traditionally solved by heuristics developed by compiler designers. Designing good heuristics is a non-trivial task, but recent work has shown promise in machine-learned policies as an alternative to manually defined policies \cite{mlgo}. To our knowledge, two prior works have approached function inlining using machine learning methods: MLGO \cite{mlgo} and MLGOPerf \cite{mlgoperf}. MLGO chose to focus on creating a heuristic for inlining for size due to several challenges with training an inlining for speed heuristic. MLGOPerf built on the work done by Trofin et al. and proposed a framework for training inlining for speed agents.
 
-% TODO: put this in the background section
-%MLGO worked on function inlining as an incidental problem to their efforts to add the framework for using reinforcement learning (RL) to produce compiler heuristics in lieu of a human. They created a heuristic which used function inlining to specifically optimize for final binary size, rather than binary runtime. MLGOPerf built on top of the framework introduced by Trofin et al. in order to train a function inlining agent to optimize for binary runtime.
+%TODO: I feel like I should describe on MLGOPerf so that the reader has context for this contribution section
+Opti-ML builds on top of the work of Ashouri et al. with the following additions\footnote{While not a novel addition, we also produced an open source implementation of MLGOPerf's training architecture: \href{https://github.com/TrainingAfternoon/opti-ml}{https://github.com/TrainingAfternoon/opti-ml}}:
+\begin{enumerate}
+    % TODO: this should go somewhere else
+    %\item An open source implementation of the MLGOPerf training infrastructure\footnote{https://github.com/TrainingAfternoon/opti-ml}\footnote{This repository is still actively being cleaned up as of the time you are receiving this rough draft. The code will be significantly more documented by the end of week 16}
+    \item The collection of a dataset based on CppPerfBenchmarks \cite{cpp-perf-benchmarks} for training inlining for speed agents
+    \item The replacement of the feature extraction layer within MLGOPerf's IR2Perf model with an embedding layer, IR2Vec \cite{ir2vec}. %MLGOPerf relies on extracting a set of manually chosen features from the compiler, which are fed to their model. IR2Vec introduces the ability to embed the entire representation of a module of code
+    \item The use of random forest as an alternative to deep neural networks for IR2Perf
+\end{enumerate}
 
-%<Working Title> builds upon these efforts by creating a full implementation of the MGLOPerf inlining-for-speed training infrastructure, as well as a dataset based on CppPerformanceBenchmarks \cite{cpp-perf-benchmark}. Finally, <Working Title> also replaces the feature extraction layer within MLGOPerf's IR2Perf network with an embedding layer, IR2Vec \cite{ir2vec}.
+The rest of the paper is organized as follows. Section 2 discusses the architectures of MLGO and MLGOPerf in more detail, as well as IR2Vec. Section 3 provides detail on how we collected our dataset and our proposed inlining-for-speed training scheme as well as the hardware \& sofwater used for training our agent. Section 4 presents the results of our function inlining heuristic against the default inlining heurstic in LLVM with a varied set of parameters. We also compare against the agents trained by MLGO and MLGOPerf respectively. Finally, section 5 discusses current shortcomings, challenges, and proposes future work.
 
-%<Working Title> proposes the following 
+%Opti-ML builds upon these efforts by creating a full implementation of the MGLOPerf inlining-for-speed training infrastructure, as well as a dataset based on CppPerformanceBenchmarks \cite{cpp-perf-benchmark}. Finally, Opti-ML also replaces the feature extraction layer within MLGOPerf's IR2Perf network with an embedding layer, IR2Vec \cite{ir2vec}.
+
+%Opti-ML proposes the following 
 %\begin{enumerate}
 %    \item The replacement of the feature extraction layer within MLGOPerf's IR2Perf model with an embedding layer, IR2Vec \cite{ir2vec}. MLGOPerf relies on the 
 %\end{enumerate}
@@ -148,11 +159,20 @@ Function inlining is traditionally solved by heuristics developed by compiler de
 \section{Background}
 \label{background}
 \begin{itemize}
-\item LLVM\@.
 \item MLGO\@.
 \item MLGOPerf\@.
 \item IR2Vec\@.
 \end{itemize}
+
+\subsection{MLGO}
+MLGO, or "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, was an attempt to introduce machine learning guided compiler optimizations into a "real world" compiler environment. The authors chose to target the LLVM C/C++ compiler and focused on two compiler optimizations: function inlining and register allocation.
+
+
+%MLGO worked on function inlining as an incidental problem to their efforts to add the framework for using reinforcement learning (RL) to produce compiler heuristics in lieu of a human. They created a heuristic which used function inlining to specifically optimize for final binary size, rather than binary runtime. MLGOPerf built on top of the framework introduced by Trofin et al. in order to train a function inlining agent to optimize for binary runtime.
+
+\subsection{MLGOPerf}
+
+\subsection{IR2Vec}
 
 \section{Methods}
 \label{methods}

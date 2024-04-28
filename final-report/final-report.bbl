@@ -1,9 +1,27 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{4}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Ashouri et~al.(2022)Ashouri, Elhoushi, Hua, Wang, Manzoor, Chan, and
+  Gao]{mlgoperf}
+Ashouri, A.~H., Elhoushi, M., Hua, Y., Wang, X., Manzoor, M.~A., Chan, B., and
+  Gao, Y.
+\newblock Work-in-progress: Mlgoperf: An ml guided inliner to optimize
+  performance.
+\newblock In \emph{2022 International Conference on Compilers, Architecture,
+  and Synthesis for Embedded Systems (CASES)}. IEEE, October 2022.
+\newblock \doi{10.1109/cases55004.2022.00008}.
+\newblock URL \url{http://dx.doi.org/10.1109/CASES55004.2022.00008}.
+
+\bibitem[Lattner \& Adve(2004)Lattner and Adve]{llvm-paper}
+Lattner, C. and Adve, V.
+\newblock {LLVM: A Compilation Framework for Lifelong Program Analysis \&
+  Transformation}.
+\newblock In \emph{{Proceedings of the 2004 International Symposium on Code
+  Generation and Optimization (CGO'04)}}, Palo Alto, California, Mar 2004.
 
 \bibitem[Theodoridis et~al.(2022)Theodoridis, Grosser, and
   Su]{Theodoridis_Grosser_Su_2022}
@@ -13,5 +31,12 @@ Theodoridis, T., Grosser, T., and Su, Z.
   Architectural Support for Programming Languages and Operating Systems}, Feb
   2022.
 \newblock \doi{10.1145/3503222.3507744}.
+
+\bibitem[Trofin et~al.(2021)Trofin, Qian, Brevdo, Lin, Choromanski, and
+  Li]{mlgo}
+Trofin, M., Qian, Y., Brevdo, E., Lin, Z., Choromanski, K., and Li, D.
+\newblock {MLGO:} a machine learning guided compiler optimizations framework.
+\newblock \emph{CoRR}, abs/2101.04808, 2021.
+\newblock URL \url{https://arxiv.org/abs/2101.04808}.
 
 \end{thebibliography}
