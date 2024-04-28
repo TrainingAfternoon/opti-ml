@@ -7,3 +7,14 @@ __pycache__
 build/*
 dist/*
 ml_compiler_opt.egg-info/*
+
+# LaTex
+final-report/*.aux
+final-report/*.blg
+final-report/*.fdb_latexmk
+final-report/*.fls
+final-report/*.log
+final-report/*.out
+final-report/*.gz
+## NOTE: uncomment this one when the final paper is fully built!
+final-report/*.pdf
