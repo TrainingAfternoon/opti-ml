@@ -111,7 +111,7 @@ def create_flat_sequence_example_dataset_fn(
     # yapf: disable - Looks better hand formatted
     dataset = (tf.data.Dataset
                 .from_tensor_slices(sequence_examples)
-                .filter(lambda string: tf.strings.length(string) > 0)
+                .filter(lambda string: print(string) or tf.strings.length(string) > 0)
                 .map(parser_fn)
                 .filter(lambda traj: tf.size(traj.reward) > 2)
                 .unbatch()

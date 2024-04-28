@@ -68,6 +68,7 @@ mv doom-wad-shareware_1.9.fixed.orig/doom1.wad ~/crispy-doom
 ```
 
 ## Running the Training Pipeline
+Don't forget to have compiled crispy doom!
 ```shell
 ./extract_corpus.sh
 ./generate_trace.sh

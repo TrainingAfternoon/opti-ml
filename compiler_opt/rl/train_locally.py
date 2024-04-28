@@ -145,6 +145,7 @@ def train_eval(worker_manager_class=LocalWorkerPoolManager,
     if tf.io.gfile.exists(best_trajectory_repo_path):
       best_trajectory_repo.load_from_json_file(best_trajectory_repo_path)
 
+  # NOTE: pretty sure this is where the inlining runner is inserted!
   with worker_manager_class(
       worker_class=problem_config.get_runner_type(),
       count=FLAGS.num_workers,
@@ -182,6 +183,7 @@ def train_eval(worker_manager_class=LocalWorkerPoolManager,
           policy=policy_saver.Policy.from_filesystem(
               os.path.join(policy_path, deploy_policy_name)),
           model_id=llvm_trainer.global_step_numpy())
+      print("dataset_iter =", dataset_iter)
       llvm_trainer.train(dataset_iter, monitor_dict, num_iterations)
 
       data_collector.on_dataset_consumed(dataset_iter)

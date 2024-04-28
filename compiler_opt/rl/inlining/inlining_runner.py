@@ -21,6 +21,13 @@ from typing import Dict, Tuple
 import gin
 import tensorflow as tf
 
+# IR2Perf Requirements
+import pickle
+from xgboost import XGBRFRegressor
+from sklearn.pipeline import Pipeline
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+
 from compiler_opt.rl import compilation_runner
 from compiler_opt.rl import corpus
 from compiler_opt.rl import log_reader
@@ -41,9 +48,13 @@ class InliningRunner(compilation_runner.CompilationRunner):
       ir_path, tf_policy_path, default_reward, moving_average_reward)
   """
 
-  def __init__(self, llvm_size_path: str, *args, **kwargs):
+  def __init__(self, llvm_size_path: str, ir2perf_model_pickle_path: str, ir2vec_path: str, ir2vec_vocab_path: str, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self._llvm_size_path = llvm_size_path
+    with open(ir2perf_model_pickle_path, 'rb') as datafile:
+        self.ir2perf = pickle.load(datafile)
+    self._ir2vec_path = ir2vec_path
+    self._ir2vec_vocab_path = ir2vec_vocab_path
 
   def compile_fn(
       self, command_line: corpus.FullyQualifiedCmdLine, tf_policy_path: str,
@@ -78,37 +89,58 @@ class InliningRunner(compilation_runner.CompilationRunner):
     if self._launcher_path:
       cmdline.append(self._launcher_path)
     cmdline.extend([self._clang_path] + list(command_line) + [
-        '-emit-obj', '-mllvm', '-enable-ml-inliner=development', '-mllvm', '-training-log=' +
+        '-emit-llvm', '-mllvm', '-enable-ml-inliner=development', '-mllvm', '-training-log=' +
         log_path, '-o', output_native_path
     ])
+
     if tf_policy_path:
       cmdline.extend(
           ['-mllvm', '-ml-inliner-model-under-training=' + tf_policy_path])
     compilation_runner.start_cancellable_process(cmdline,
                                                  self._compilation_timeout,
                                                  self._cancellation_manager)
-    cmdline = [self._llvm_size_path, output_native_path]
-    output_bytes = compilation_runner.start_cancellable_process(
-        cmdline,
-        timeout=self._compilation_timeout,
-        cancellation_manager=self._cancellation_manager,
-        want_output=True)
-    if not output_bytes:
-      print(f'Empty llvm-size output: {" ".join(cmdline)}')
-      raise RuntimeError(f'Empty llvm-size output: {" ".join(cmdline)}')
-    output = output_bytes.decode('utf-8')
-    tmp = output.split('\n')
-    if len(tmp) != 3:
-      print(f'Empty llvm-size output: {" ".join(cmdline)}')
-      raise RuntimeError(f'Wrong llvm-size output {output}')
-    tmp = tmp[1].split('\t')
-    native_size = int(tmp[0])
 
-    if native_size == 0:
-      return {}
+    compilation_runner.start_cancellable_process(['cp', output_native_path, '/home/student/native'], self._compilation_timeout, self._cancellation_manager)
+
+    # get predicted runtime from IR2Perf
+    output_native_path_embedding = os.path.join(working_dir, 'native-embedding')
+    ir2vec_cmdline = [self._ir2vec_path, "--vocab=" + self._ir2vec_vocab_path, "--fa", "--level=f", "-o", output_native_path_embedding, output_native_path]
+    compilation_runner.start_cancellable_process(ir2vec_cmdline,
+                                                 self._compilation_timeout,
+                                                 self._cancellation_manager)
+
+    fvs = []
+    # line format
+    # <filename>.cpp<demangled func><TAB>vecdim0<TAB>...<TAB>vecdim299
+    with open(output_native_path_embedding, 'r') as datafile:
+        for line in datafile:
+            fvs.append(list(map(float, line.split('\t')[2:-1])))
+
+    reward = sum(self.ir2perf.predict(fvs))
+
+    ## get reward as size
+    #cmdline = [self._llvm_size_path, output_native_path]
+    #output_bytes = compilation_runner.start_cancellable_process(
+    #    cmdline,
+    #    timeout=self._compilation_timeout,
+    #    cancellation_manager=self._cancellation_manager,
+    #    want_output=True)
+    #if not output_bytes:
+    #  print(f'Empty llvm-size output: {" ".join(cmdline)}')
+    #  raise RuntimeError(f'Empty llvm-size output: {" ".join(cmdline)}')
+    #output = output_bytes.decode('utf-8')
+    #tmp = output.split('\n')
+    #if len(tmp) != 3:
+    #  print(f'Empty llvm-size output: {" ".join(cmdline)}')
+    #  raise RuntimeError(f'Wrong llvm-size output {output}')
+    #tmp = tmp[1].split('\t')
+    #native_size = int(tmp[0])
+
+    #if native_size == 0:
+    #  return {}
 
     if reward_only:
-      return {_DEFAULT_IDENTIFIER: (None, native_size)}
+      return {_DEFAULT_IDENTIFIER: (None, reward)}
 
     result = log_reader.read_log_as_sequence_examples(log_path)
     if len(result) != 1:
@@ -118,4 +150,4 @@ class InliningRunner(compilation_runner.CompilationRunner):
     if not sequence_example.HasField('feature_lists'):
       return {}
 
-    return {_DEFAULT_IDENTIFIER: (sequence_example, native_size)}
+    return {_DEFAULT_IDENTIFIER: (sequence_example, reward)}

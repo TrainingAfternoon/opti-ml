@@ -44,6 +44,7 @@ _KEEP_TEMPS = flags.DEFINE_string(
     'Put temporary files into given directory and keep them past exit.')
 
 
+# TODO: is this our guy?
 def _calculate_reward(policy: float, baseline: float) -> float:
   # This assumption allows us to imply baseline + constant.DELTA > 0.
   assert baseline >= 0
@@ -463,6 +464,7 @@ class CompilationRunner(Worker):
         policy_rewards=policy_rewards,
         keys=keys,
         model_id=model_id)
+    #print(len(rewards))
 
     for observer in self._observers:
       observer.observe(result)

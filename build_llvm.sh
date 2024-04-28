@@ -29,20 +29,19 @@ $OPTIML_SRCDIR/buildbot/build_tflite.sh
 ## https://llvm.org/docs/CMake.html#cmake-build-type
 ## https://lists.llvm.org/pipermail/llvm-dev/2020-April/140763.html
 echo "Building LLVM"
-cd $LLVM_SRCDIR
 mkdir -p $LLVM_INSTALLDIR
 cd $LLVM_INSTALLDIR
 cmake \
 	-G "Ninja" \
 	-S $LLVM_SRCDIR/llvm \
+	-C ${TFLITE_PATH}/tflite.cmake \
 	-DLLVM_ENABLE_PROJECTS='clang' \
 	-DCMAKE_INSTALL_PREFIX='~/workspace/llvm-install' \
 	-DCMAKE_BUILD_TYPE='Release' \
-	-DLLVM_USE_ML_POLICY='Rel' \
+	-DLLVM_USE_ML_POLICY='Dev' \
 	-DLLVM_TF_AOT_RUNTIME=$TENSORFLOW_AOT_PATH \
 	-DLLVM_USE_LINKER=lld \
-	-DLLVM_ENABLE_RUNTIMES="compiler-rt" \
-	-C ${TFLITE_PATH}/tflite.cmake
+#	-DLLVM_ENABLE_RUNTIMES="compiler-rt" \
 cmake --build .
 
 echo "Done"
