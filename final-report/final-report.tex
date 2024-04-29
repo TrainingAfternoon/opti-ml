@@ -176,19 +176,19 @@ Reinforcement learning can also be thought of as solving a Markov Decision Proce
 
 Trofin et al modeled inlining-for-size as
 \begin{itemize}
-\item\textbf{state}$\mathcal{S}$: the current call graph and the current call site being visited
-\item\textbf{action}$\mathcal{S}$: \{0, 1\} where 1 = inline, and 0 = do not inline
-\item\textbf{state transition probability}$\mathcal{P}$: $\mathcal{P}$ is captured by the compiler. Inlining is a fully deterministic system in that the same compiler will behave the same way each time when resolving an inlining decision on the exact same state.
-\item\textbf{reward}$\mathcal{R}$: the native size reduction after inlining is taken (or not taken).
+\item\textbf{state}\;$\mathcal{S}$: the current call graph and the current call site being visited
+\item\textbf{action}\;$\mathcal{A}$: \{0, 1\} where 1 = inline, and 0 = do not inline
+\item\textbf{state transition probability}\;$\mathcal{P}$: $\mathcal{P}$ is captured by the compiler. Inlining is a fully deterministic system in that the same compiler will behave the same way each time when resolving an inlining decision on the exact same state.
+\item\textbf{reward}\;$\mathcal{R}$: the native size reduction after inlining is taken (or not taken).
 \end{itemize}
 
 Trofin et al. used Proximal Policy Optimization (PPO) \cite{ppo} which is a member of the Policy Gradient \cite{pg_algo} family of RL algorithms. Policy Gradient methods directly learn some $\pi_theta$ which is updated via $\nabla J(\theta)$ where $J(\theta)$ is the expected reward under $\pi_{\theta}$.
 
-% TODO: I should probably come back and explain the full PPO if I have the same space
+% TODO: I should probably come back and explain the full PPO if I have the space
 In the interest of simplicity we explain a policy gradient algorithm called REINFORCE \cite{REINFORCE} here. PPO is an enhancement on REINFORCE and the full details can be found in \cite{ppo}.
 
 $\nabla_{\theta}J(\theta)$ is computed as:
-\begin{equation}
+\begin{equation} \label{eq:reinforce}
     \nabla_{\theta}J(\theta) = \mathbb{E}\left[\Sigma^{T}_{t=0}R\nabla_{\theta}log\pi_{\theta}(a_t|s_t)\right]
 \end{equation}
 
@@ -198,7 +198,9 @@ In practice this expectation is approximated with Monte Carlo methods using $n$ 
 \end{equation}
 Note $\alpha$ is the learning rate.
 
+Trofin et al. made one change on top of PPO. Because of difficulties in getting native size rewards at each step of the inlining process, they replaced the partial reward with the total reward $R$ in equation \ref{eq:reinforce} \cite{mlgo}.
 
+In addition, due to the complexity of the state space, Trofin et al. simplified $\mathcal{S}$ to a set of 11 numerical features.
 
 %Additionally, Trofin et al. added infrastructure to the LLVM C/C++ compiler to expose inlining decision data which can be used for training a model. Trofin et al. chose to focus on inlining-for-size, or using the inlining pass to minimize binary size.
 
@@ -222,9 +224,27 @@ Note $\alpha$ is the learning rate.
 %MLGO worked on function inlining as an incidental problem to their efforts to add the framework for using reinforcement learning (RL) to produce compiler heuristics in lieu of a human. They created a heuristic which used function inlining to specifically optimize for final binary size, rather than binary runtime. MLGOPerf built on top of the framework introduced by Trofin et al. in order to train a function inlining agent to optimize for binary runtime.
 
 \subsection{MLGOPerf}
-An issue identified by the MLGO paper with training an inlining-for-speed agent was the development of a good proxy for speed. Benchmarking code modules is very time expensive, which would make training prohibitive except on specially selected datasets \cite{mlgo}. Ashouri et al. proposed the addition of a second model, IR2Perf, which predicts an estimate of binary runtime based on the IR \cite{mlgoperf}.
+MLGOPerf \cite{mlgoperf} builds on top of the work of Trofin et al. in order to create an inlining-for-speed agent. One challenge identified in the MLGO paper was the difficulty in training for speed as rewards related to program runtime would be collected, and progam runtime is both very noisy and very expensive to collect \cite{mlgo}. Ashouri et al. proposed the addition of a second model, IR2Perf, to estimate program runtime from the IR level which enables the generation of program runtime rewards during MLGO's training process.
+
+Ashouri et al. collected a corpus of IRs using an autotuner, which uses algorithmic search to assist the compiler's optimization passes, to generate different inlining decisions. Ashouri et al. used the SPEC CPU2006 benchmarking dataset \cite{spec2006} as the basis for their corpus.
+
+Each IR example was compiled with instrumentation\footnote{\href{https://clang.llvm.org/docs/UsersManual.html\#profiling-with-instrumentation}{https://clang.llvm.org/docs/UsersManual.html\#profiling-with-instrumentation}} and ran under the Linux perf tool\footnote{\href{https://perf.wiki.kernel.org/index.php/Main\_Page}{https://perf.wiki.kernel.org/index.php/Main\_Page}} in order to collect runtime data. In particular, perf was used to collect $T_{Func}$ and $T_{Total}$ which were the percentage of time spent in an individual function and the total program runtime respectively. The llvm-profdata tool was used to report $N_{Func}$ which was the number of time each function was called. Using these statistics Ashouri et al. computed the runtime of each function:
+\begin{equation} \label{eq:fruntime}
+    Func_{runtime} = \frac{T_{Total} * T_{Func}}{N_{Func}}
+\end{equation}
+
+Using the results of \ref{eq:fruntime} the total speedup of a function compared to the function compiled with no tuning and default compiler settings was computed as:
+\begin{equation}
+    Func_{speedup} = \frac{Func_{runtime(Base)}}{Func_{runtime(X)}}
+\end{equation}
+where $X$ denotes an example from the corpus.
+
+The IR, $Func_speedup$ pairs were used to train IR2Perf in a supervised fashion. Prior to training, a collection of 20 features were extracted from the IR to be used as input to the model. Redundant data points were also pruned from the dataset, and the data was normalized and scaled. Finally, PCA was applied to the dataset with $PC=7$ components. The motivation for using PCA was the reduce the sparsity of the data. IR2Perf was trained using Mean Squared Error (MSE) loss function for 5000 epochs.
+
+%An issue identified by the MLGO paper with training an inlining-for-speed agent was the development of a good proxy for speed. Benchmarking code modules is very time expensive, which would make training prohibitive except on specially selected datasets \cite{mlgo}. Ashouri et al. proposed the addition of a second model, IR2Perf, which predicts an estimate of binary runtime based on the IR \cite{mlgoperf}.
 
 \subsection{IR2Vec}
+TODO
 
 \section{Methods}
 \label{methods}
