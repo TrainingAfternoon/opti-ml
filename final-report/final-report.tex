@@ -114,12 +114,6 @@ FOO BAR BAZ
 
 \section{Introduction}
 \label{introduction}
-\begin{itemize}
-\item Introduce the problem\@.
-\item Introduce contribution\@.
-\item Introduce structure of the rest of the paper\@.
-\end{itemize}
-
 LLVM is a modern framework for creating compilers. It decouples the parsing of source code from the generation of valid machine code by introducing an intermediate representation (IR) that captures program semantics in a language agnostic format \cite{llvm-paper}. LLVM is also an optimizing compiler. It performs several passes on program IR in an attempt to improve program size, runtime, or both. A "pass" is a single traversal through either the complete code, or a segment. These optimizations can be performed at several granularities such as Function, Call Graph, Loop, or Module level \cite{lattner2008}. Passes can generally either gather information or perform a transformation on the module of code \cite{llvm-pass-docs}. Some passes may also be run several times, either in sequence or after other passes have been performed to take advantage of new changes introduced by prior passes. Passes have been tenatively organized into pipelines such as -O\{1, 2, 3, s, z\} by compiler authors which optimize for either runtime speed or binary size, at the expense of increased compile time. These pipelines can be quite involved; LLVM's -O3 pass involves approximately 160 optimizations passes which involves optimizations performed at multiple different levels of granularity.
 
 % TODO: should I include a vocabulary section?
@@ -159,17 +153,26 @@ The rest of the paper is organized as follows. Section 2 discusses the architect
 
 \section{Background}
 \label{background}
-\begin{itemize}
-\item MLGO\@.
-\item MLGOPerf\@.
-\item IR2Vec\@.
-\end{itemize}
+\subsection{LLVM Inlining Heuristic}
+The function inlining pass used by the LLVM C/C++ compiler operates on strongly connected components (SCCs) within the call graph of the module under compilation. Every call in every function is considered for inlining, and a yes/no decision is resolved at each point. Finally, several optimizations are applied on the processed SCC after all inlining decisions as "cleanup" have been resolved \cite{mlgo}. These optimizations can have downstream effects on later inlining decisions.
+
+The inlining decision itself consists of several heuristics. A static cost is estimated for inlining the callee into the caller by simulating post-inlining cleanup passes on the callee. A threshold, estimated based on call site hotness and inlining hints, is applied to the cost to determine the go / no-go decision on inlining the callee \cite{mlgo}. The estimated cost can also be influenced by the number of SIMD instructions within the calee or the number of basic blocks. The compiler can also choose to defer an inlining decision, returning the callee back to the queue of call sites to consider, if inlining the caller may result in better savings.
+
+% https://llvm.org/doxygen/Inliner_8h_source.html
+
+% desirability of partial inlining
+%A partially inlined function may be desirable in cases where it is called in both very frequently and very infrequently called functions.
 
 \subsection{MLGO}
-MLGO, or the "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, was an attempt to introduce machine learning guided compiler optimizations into a "real world" compiler environment. The authors chose to target the LLVM C/C++ compiler and focused on two compiler optimizations: function inlining and register allocation.
+MLGO, or the "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, was an effort to introduce machine learning guided compiler optimizations into a "real world" compiler environment. The authors worked with the LLVM community to develop infrastructure for the clang C/C++ compiler for ingesting ML models as TensorFlow saved models, and the exfiltration of traces for training purposes. Their work was upstreamed into LLVM and used for developing ML-based heuristics for the function inlining and register allocation optimization passes.
 
-The authors worked with the LLVM community to develop infrastructure for the LLVM project for ingesting models as TensorFlow saved models, and the exfiltration of traces for training purposes. Their work was upstreamed into LLVM. The authors explored two methods for producing models in conjunction with the data exposed from the compiler: Proximal Policy Optimization\footnote{Open sourced at \href{https://github.com/google/ml-compiler-opt}{https://github.com/google/ml-compiler-opt}} (PPO) \cite{schulman2017proximal}, which is a reinforcement learning (RL) algorithm, and evolutionary strategies (ES) \cite{salimans2017evolution}.
+The authors explored two methods for training models in conjunction with the data exposed from the compiler: Proximal Policy Optimization (PPO) \cite{schulman2017proximal}, which is a reinforcement learning (RL) algorithm, and evolutionary strategies (ES) \cite{salimans2017evolution}. We focus on describing Proximal Policy Optimization in this paper, as only the PPO training code was released by Trofin et al.\footnote{\href{https://github.com/google/ml-compiler-opt}{https://github.com/google/ml-compiler-opt}} and later work building on MLGO also use the PPO training strategy.
 
+Proximal Policy Optimization is 
+%The authors chose to target the LLVM C/C++ compiler and focused on two compiler optimizations: function inlining and register allocation.
+
+% MLGO repo:
+%\footnote{Open sourced at \href{https://github.com/google/ml-compiler-opt}{https://github.com/google/ml-compiler-opt}}
 %TODO: do we describe PPO here? -- I think we have to so we can describe how rewards for size work so we have context in MLGOPerf
 
 %to support using saved models in the TensorFlow Saved Model format (later changed to Tflite) during the inlining and register allocation passes. These models act as drop in replacements for the heuristics previously used.
@@ -183,14 +186,6 @@ An issue identified by the MLGO paper with training an inlining-for-speed agent 
 
 \section{Methods}
 \label{methods}
-\begin{itemize}
-\item Hardware / software report\@.
-\item Data sources\@.
-\item Data collection\@.
-\item IR2Perf Training\@.
-\item MLGO Training\@.
-\end{itemize}
-
 \subsection{Computing Environment}
 All work for Opti-ML was performed in a Debian 12 Bookworm VM with a 16-core ARM Neoverse-N1 and 256GiB RAM. A complete list of software packages necessary for setting up the compute environment can be found in the project repository\footnote{\href{https://github.com/TrainingAfternoon/opti-ml}{https://github.com/TrainingAfternoon/opti-ml}}.
 
