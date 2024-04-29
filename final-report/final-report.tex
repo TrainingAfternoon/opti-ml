@@ -136,7 +136,7 @@ Opti-ML builds on top of the work of Ashouri et al. with the following additions
     \item The use of random forest as an alternative to deep neural networks for IR2Perf
 \end{enumerate}
 
-The rest of the paper is organized as follows. Section 2 discusses the architectures of MLGO and MLGOPerf in more detail, as well as IR2Vec. Section 3 provides detail on how we collected our dataset and our proposed inlining-for-speed training scheme as well as the hardware \& sofwater used for training our agent. Section 4 presents the results of our function inlining heuristic against the default inlining heurstic in LLVM with a varied set of parameters. We also compare against the agents trained by MLGO and MLGOPerf respectively. Finally, section 5 discusses current shortcomings, challenges, and proposes future work.
+The rest of the paper is organized as follows. Section 2 discusses the architectures of MLGO and MLGOPerf in more detail, as well as IR2Vec. Section 3 provides detail on how we collected our dataset and our proposed inlining-for-speed training scheme as well as the hardware \& sofwater used for training our agent. Section 4 presents the results of our function inlining heuristic against the default inlining heurstic in LLVM with a varied set of parameters. We also compare against the agents trained by MLGO and MLGOPerf respectively. Finally, section 5 discusses current shortcomings, challenges, and proposes future work. Section 6 concludes the paper.
 
 %Opti-ML builds upon these efforts by creating a full implementation of the MGLOPerf inlining-for-speed training infrastructure, as well as a dataset based on CppPerformanceBenchmarks \cite{cpp-perf-benchmark}. Finally, Opti-ML also replaces the feature extraction layer within MLGOPerf's IR2Perf network with an embedding layer, IR2Vec \cite{ir2vec}.
 
@@ -164,11 +164,53 @@ The inlining decision itself consists of several heuristics. A static cost is es
 %A partially inlined function may be desirable in cases where it is called in both very frequently and very infrequently called functions.
 
 \subsection{MLGO}
-MLGO, or the "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, was an effort to introduce machine learning guided compiler optimizations into a "real world" compiler environment. The authors worked with the LLVM community to develop infrastructure for the clang C/C++ compiler for ingesting ML models as TensorFlow saved models, and the exfiltration of traces for training purposes. Their work was upstreamed into LLVM and used for developing ML-based heuristics for the function inlining and register allocation optimization passes.
+\subsubsection{Overview}
+MLGO, or the "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, was an effort to bridge the gap between academic investigation of machine learning methods for compiler optimization and real world compilers. Trofin et al. worked with the LLVM community to introduce a drop-in, machine-learned replacement for the inlining decision heuristic. Trofin et al. chose the inlining decision heuristic for both the importance of the heuristic, and the ease of measuring final binary size compared to a more noisy statistic like program runtime.
 
-The authors explored two methods for training models in conjunction with the data exposed from the compiler: Proximal Policy Optimization (PPO) \cite{schulman2017proximal}, which is a reinforcement learning (RL) algorithm, and evolutionary strategies (ES) \cite{salimans2017evolution}. We focus on describing Proximal Policy Optimization in this paper, as only the PPO training code was released by Trofin et al.\footnote{\href{https://github.com/google/ml-compiler-opt}{https://github.com/google/ml-compiler-opt}} and later work building on MLGO also use the PPO training strategy.
+Trofin et al. used both reinforcement learning (RL) and evolutionary strategies to train candidate models for the inlining-for-size heuristic. While Trofin et al. found that the ES method performed slightly better than the RL method, we focus on the RL method in this paper as later work builds on it.
 
-Proximal Policy Optimization is 
+\subsubsection{Reinforcement Learning}
+Reinforcement learning is a method for training an agent to understand, and interact with, an environment. The agent, or interchangably the model, learns via trial and error by interacting with its environment. At each time step the agent receives some state $s_t$ which is a collection of features that represent the environment. It takes some action $a_t$ according to its policy, $\pi(s_t)$, which is a distribution over all actions the agent could take conditioned on its current state. After taking an action it receives both its next state and a reward based on the new state, $s_{t+1}, r_{t+1} = \mathcal{R}(s_t, s_{t+1})$. Note that $\mathcal{R}$ is the reward function and is a user designed function. $\mathcal{R}$ is what drives the agent towards a particular goal. In deep reinforcement learning the policy $\pi$ can be learned via a deep network which we will represent as $pi_theta$.
+
+Reinforcement learning can also be thought of as solving a Markov Decision Process (MDP), which is a mathematical framework for repesenting sequential decision making problems such as inlining-for-size. The MDP is represented with the 4-tuple $<\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}>$. Respectively, $\mathcal{S}$ the set of all states, $\mathcal{A}$ the set of all actions, $\mathcal{P}$ the probability distribution of state transitions $\mathcal{P}(s_{t+1}|s_t,a_t)$, and $\mathcal{R}$ the reward function. The goal of RL algorithms is to find some $\pi^*$ that machines the total reward\footnote{$\gamma \in [0, 1]$ is the discount factor. MLGO takes $\gamma = 1$} $R = \Sigma^{T}_{t=0}\gamma r_t$.
+
+Trofin et al modeled inlining-for-size as
+\begin{itemize}
+\item\textbf{state}$\mathcal{S}$: the current call graph and the current call site being visited
+\item\textbf{action}$\mathcal{S}$: \{0, 1\} where 1 = inline, and 0 = do not inline
+\item\textbf{state transition probability}$\mathcal{P}$: $\mathcal{P}$ is captured by the compiler. Inlining is a fully deterministic system in that the same compiler will behave the same way each time when resolving an inlining decision on the exact same state.
+\item\textbf{reward}$\mathcal{R}$: the native size reduction after inlining is taken (or not taken).
+\end{itemize}
+
+Trofin et al. used Proximal Policy Optimization (PPO) \cite{ppo} which is a member of the Policy Gradient \cite{pg_algo} family of RL algorithms. Policy Gradient methods directly learn some $\pi_theta$ which is updated via $\nabla J(\theta)$ where $J(\theta)$ is the expected reward under $\pi_{\theta}$.
+
+% TODO: I should probably come back and explain the full PPO if I have the same space
+In the interest of simplicity we explain a policy gradient algorithm called REINFORCE \cite{REINFORCE} here. PPO is an enhancement on REINFORCE and the full details can be found in \cite{ppo}.
+
+$\nabla_{\theta}J(\theta)$ is computed as:
+\begin{equation}
+    \nabla_{\theta}J(\theta) = \mathbb{E}\left[\Sigma^{T}_{t=0}R\nabla_{\theta}log\pi_{\theta}(a_t|s_t)\right]
+\end{equation}
+
+In practice this expectation is approximated with Monte Carlo methods using $n$ trajectories\footnote{A trajectory, or an episode, is a sequence of $(s_0, a_0, r_1, s_1, a_1, ..., a_{T-1}, s_T, r_T)$ and the total reward $R$}. $\theta$ is updated as:
+\begin{equation}
+    \theta \leftarrow \theta + \alpha\frac{1}{n}\Sigma^{n}_{i=1}\bigl\{\Sigma^{T}_{t=0}R_{i}\nabla_{\theta}log\pi_{theta}(a_{i,t}|s_{i,t})\bigr\}
+\end{equation}
+Note $\alpha$ is the learning rate.
+
+
+
+%Additionally, Trofin et al. added infrastructure to the LLVM C/C++ compiler to expose inlining decision data which can be used for training a model. Trofin et al. chose to focus on inlining-for-size, or using the inlining pass to minimize binary size.
+
+%use machine learning to replace the handcrafted heuristics for select compiler optimizations, including function inlining. 
+
+%Trofin et al worked with the LLVM community to develop infrastructure for the clang C/C++ compiler for ingesting ML models as TensorFlow saved models, and the exfiltration of traces for training purposes. Their work was upstreamed into LLVM
+
+%introduce machine learning guided compiler optimizations into a "real world" compiler environment. The authors worked with the LLVM community to develop infrastructure for the clang C/C++ compiler for ingesting ML models as TensorFlow saved models, and the exfiltration of traces for training purposes. Their work was upstreamed into LLVM and used for developing ML-based heuristics for the function inlining and register allocation optimization passes.
+
+%The authors explored two methods for training models in conjunction with the data exposed from the compiler: Proximal Policy Optimization (PPO) \cite{schulman2017proximal}, which is a reinforcement learning (RL) algorithm, and evolutionary strategies (ES) \cite{salimans2017evolution}. We focus on describing Proximal Policy Optimization in this paper, as only the PPO training code was released by Trofin et al.\footnote{\href{https://github.com/google/ml-compiler-opt}{https://github.com/google/ml-compiler-opt}} and later work building on MLGO also use the PPO training strategy.
+
+%Proximal Policy Optimization is
 %The authors chose to target the LLVM C/C++ compiler and focused on two compiler optimizations: function inlining and register allocation.
 
 % MLGO repo:
@@ -191,7 +233,12 @@ All work for Opti-ML was performed in a Debian 12 Bookworm VM with a 16-core ARM
 
 \subsection{Data Sources}
 \subsubsection{CppPerformanceBenchmarks}
+CppPerformanceBenchmarks is a collection of C++ files intended to evaluate C++ compiler performance.
+% TODO: actually give stats on the dataset here!
+
 \subsubsection{cBench}
+The Collective Benchmark (cBench) is a collection of open-source programs with an emphasis on portability and support for several compilers such as GCC, LLVM, etc. The cBench collection has been used for evaluating compiler optimizations within MILEPOST GCC before \cite{cbench}.
+% TODO: actually give stats on the dataset here!
 
 \subsection{Training IR2Perf}
 
