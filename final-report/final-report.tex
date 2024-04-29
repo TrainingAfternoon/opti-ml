@@ -241,6 +241,8 @@ where $X$ denotes an example from the corpus.
 
 The IR, $Func_speedup$ pairs were used to train IR2Perf in a supervised fashion. Prior to training, a collection of 20 features were extracted from the IR to be used as input to the model. Redundant data points were also pruned from the dataset, and the data was normalized and scaled. Finally, PCA was applied to the dataset with $PC=7$ components. The motivation for using PCA was the reduce the sparsity of the data. IR2Perf was trained using Mean Squared Error (MSE) loss function for 5000 epochs.
 
+Other than modifying MLGO to use the IR2Perf network to generate runtime rewards, the MLGO training architecture was left unchanged.
+
 %An issue identified by the MLGO paper with training an inlining-for-speed agent was the development of a good proxy for speed. Benchmarking code modules is very time expensive, which would make training prohibitive except on specially selected datasets \cite{mlgo}. Ashouri et al. proposed the addition of a second model, IR2Perf, which predicts an estimate of binary runtime based on the IR \cite{mlgoperf}.
 
 \subsection{IR2Vec}
@@ -253,12 +255,19 @@ All work for Opti-ML was performed in a Debian 12 Bookworm VM with a 16-core ARM
 
 \subsection{Data Sources}
 \subsubsection{CppPerformanceBenchmarks}
-CppPerformanceBenchmarks is a collection of C++ files intended to evaluate C++ compiler performance.
-% TODO: actually give stats on the dataset here!
+CppPerformanceBenchmarks is a collection of C++ files intended to evaluate C++ compiler performance \cite{cpp-perf-benchmarks}. CppPerformanceBenchmarks consists of 69 distinct benchmarks. We chose a subset of examples which ran in under two minutes: (1) machine.cpp, (2) functionobjects.cpp, (3) loop\_removal.cpp, (4) rotate\_bits.cpp, and (5) scalar\_replacement\_structs.cpp.
+
+We used CppPerformanceBenchmarks as the basis for our training and validation datasets.
 
 \subsubsection{cBench}
 The Collective Benchmark (cBench) is a collection of open-source programs with an emphasis on portability and support for several compilers such as GCC, LLVM, etc. The cBench collection has been used for evaluating compiler optimizations within MILEPOST GCC before \cite{cbench}.
-% TODO: actually give stats on the dataset here!
+
+We used cBench as our testing corpus.
+
+\subsection{Data Collection}
+Unlike MLGOPerf we chose to forgo the use of an autotuner for a few reasons: 1) there were no good open source tuners available for our case, 2) we thought that by instead generating samples under varying inlining conditions we might more uniformly explore the space of inlining configurations, hopefully helping the IR2Perf performance.
+
+We varied the default inlining heuristic by modifying the `-inline-threshold` flag. We used thresholds $\tau$ uniformly randomly sampled from $\bigr\{x\;|\;0 \geq x \leq 1000,\;0 \equiv x (mod\;25)\bigr\}$.
 
 \subsection{Training IR2Perf}
 
