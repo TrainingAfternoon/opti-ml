@@ -1,4 +1,4 @@
-\begin{thebibliography}{4}
+\begin{thebibliography}{6}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -22,6 +22,17 @@ Lattner, C. and Adve, V.
   Transformation}.
 \newblock In \emph{{Proceedings of the 2004 International Symposium on Code
   Generation and Optimization (CGO'04)}}, Palo Alto, California, Mar 2004.
+
+\bibitem[Salimans et~al.(2017)Salimans, Ho, Chen, Sidor, and
+  Sutskever]{salimans2017evolution}
+Salimans, T., Ho, J., Chen, X., Sidor, S., and Sutskever, I.
+\newblock Evolution strategies as a scalable alternative to reinforcement
+  learning, 2017.
+
+\bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
+  Klimov]{schulman2017proximal}
+Schulman, J., Wolski, F., Dhariwal, P., Radford, A., and Klimov, O.
+\newblock Proximal policy optimization algorithms, 2017.
 
 \bibitem[Theodoridis et~al.(2022)Theodoridis, Grosser, and
   Su]{Theodoridis_Grosser_Su_2022}

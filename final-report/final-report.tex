@@ -132,6 +132,7 @@ Function inlining can have an impact on both the final binary size and the runti
 Function inlining is traditionally solved by heuristics developed by compiler designers. Designing good heuristics is a non-trivial task, but recent work has shown promise in machine-learned policies as an alternative to manually defined policies \cite{mlgo}. To our knowledge, two prior works have approached function inlining using machine learning methods: MLGO \cite{mlgo} and MLGOPerf \cite{mlgoperf}. MLGO chose to focus on creating a heuristic for inlining for size due to several challenges with training an inlining for speed heuristic. MLGOPerf built on the work done by Trofin et al. and proposed a framework for training inlining for speed agents.
 
 %TODO: I feel like I should describe on MLGOPerf so that the reader has context for this contribution section
+%TODO: Notice that the MLGO authors specifically called out embedding as something to try! Really good justification for why we tried IR2Vec
 Opti-ML builds on top of the work of Ashouri et al. with the following additions\footnote{While not a novel addition, we also produced an open source implementation of MLGOPerf's training architecture: \href{https://github.com/TrainingAfternoon/opti-ml}{https://github.com/TrainingAfternoon/opti-ml}}:
 \begin{enumerate}
     % TODO: this should go somewhere else
@@ -165,12 +166,18 @@ The rest of the paper is organized as follows. Section 2 discusses the architect
 \end{itemize}
 
 \subsection{MLGO}
-MLGO, or "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, was an attempt to introduce machine learning guided compiler optimizations into a "real world" compiler environment. The authors chose to target the LLVM C/C++ compiler and focused on two compiler optimizations: function inlining and register allocation.
+MLGO, or the "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, was an attempt to introduce machine learning guided compiler optimizations into a "real world" compiler environment. The authors chose to target the LLVM C/C++ compiler and focused on two compiler optimizations: function inlining and register allocation.
 
+The authors worked with the LLVM community to develop infrastructure for the LLVM project for ingesting models as TensorFlow saved models, and the exfiltration of traces for training purposes. Their work was upstreamed into LLVM. The authors explored two methods for producing models in conjunction with the data exposed from the compiler: Proximal Policy Optimization\footnote{Open sourced at \href{https://github.com/google/ml-compiler-opt}{https://github.com/google/ml-compiler-opt}} (PPO) \cite{schulman2017proximal}, which is a reinforcement learning (RL) algorithm, and evolutionary strategies (ES) \cite{salimans2017evolution}.
+
+%TODO: do we describe PPO here? -- I think we have to so we can describe how rewards for size work so we have context in MLGOPerf
+
+%to support using saved models in the TensorFlow Saved Model format (later changed to Tflite) during the inlining and register allocation passes. These models act as drop in replacements for the heuristics previously used.
 
 %MLGO worked on function inlining as an incidental problem to their efforts to add the framework for using reinforcement learning (RL) to produce compiler heuristics in lieu of a human. They created a heuristic which used function inlining to specifically optimize for final binary size, rather than binary runtime. MLGOPerf built on top of the framework introduced by Trofin et al. in order to train a function inlining agent to optimize for binary runtime.
 
 \subsection{MLGOPerf}
+An issue identified by the MLGO paper with training an inlining-for-speed agent was the development of a good proxy for speed. Benchmarking code modules is very time expensive, which would make training prohibitive except on specially selected datasets \cite{mlgo}. Ashouri et al. proposed the addition of a second model, IR2Perf, which predicts an estimate of binary runtime based on the IR \cite{mlgoperf}.
 
 \subsection{IR2Vec}
 
@@ -183,6 +190,17 @@ MLGO, or "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, 
 \item IR2Perf Training\@.
 \item MLGO Training\@.
 \end{itemize}
+
+\subsection{Computing Environment}
+All work for Opti-ML was performed in a Debian 12 Bookworm VM with a 16-core ARM Neoverse-N1 and 256GiB RAM. A complete list of software packages necessary for setting up the compute environment can be found in the project repository\footnote{\href{https://github.com/TrainingAfternoon/opti-ml}{https://github.com/TrainingAfternoon/opti-ml}}.
+
+\subsection{Data Sources}
+\subsubsection{CppPerformanceBenchmarks}
+\subsubsection{cBench}
+
+\subsection{Training IR2Perf}
+
+\subsection{Training MLGO}
 
 \section{Results}
 \label{results}
