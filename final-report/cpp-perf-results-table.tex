@@ -1,0 +1,25 @@
+\begin{table}
+\begin{center}
+    \caption{cpp-perf-benchmarks results}
+    \label{table:cpp-perf-benchmarks}
+\begin{tabular}{llrr}
+\toprule
+                           &        &  mean\_runtime &  variance \\
+file & agent &               &           \\
+\midrule
+locales & base &      106.5030 &    7.9667 \\
+                           & mlgo &      106.2703 &    0.0297 \\
+                           & policy &      106.5833 &    8.2707 \\
+loop removal & base &       10.9990 &    0.0010 \\
+                           & mlgo &        0.1953 &    0.0006 \\
+                           & policy &        0.1933 &    0.0060 \\
+rotate bits & base &      122.9357 &    0.0108 \\
+                           & mlgo &      116.4967 &    0.0598 \\
+                           & policy &      116.5433 &    0.0384 \\
+scalar replacement structs & base &       95.8873 &    0.0146 \\
+                           & mlgo &       96.9810 &    0.0134 \\
+                           & policy &       96.9860 &    0.0638 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}

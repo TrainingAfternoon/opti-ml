@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage{subfigure}
 \usepackage{booktabs} % for professional tables
+\usepackage{adjustbox}
 
 % hyperref makes hyperlinks in the resulting PDF.
 % If your build breaks (sometimes temporarily if a hyperlink spans a page)
@@ -80,9 +81,9 @@ ML Guided Inlining for Performance}
 
 \begin{icmlauthorlist}
 \icmlauthor{Sam Keyser}{MSOE}
-\icmlauthor{Jonny Keane}{MSOE}
-\icmlauthor{Salvin Chowdhury}{MSOE}
-\icmlauthor{Jeremy Kedziora}{MSOE}
+%\icmlauthor{Jonny Keane}{MSOE}
+%\icmlauthor{Salvin Chowdhury}{MSOE}
+%\icmlauthor{Jeremy Kedziora}{MSOE}
 \end{icmlauthorlist}
 
 \icmlaffiliation{MSOE}{Electrical Engineering \& Computer Science, Milwaukee School of Engineering, Milwaukee, WI, United States}
@@ -114,7 +115,7 @@ FOO BAR BAZ
 
 \section{Introduction}
 \label{introduction}
-LLVM is a modern framework for creating compilers. It decouples the parsing of source code from the generation of valid machine code by introducing an intermediate representation (IR) that captures program semantics in a language agnostic format \cite{llvm-paper}. LLVM is also an optimizing compiler. It performs several passes on program IR in an attempt to improve program size, runtime, or both. A "pass" is a single traversal through either the complete code, or a segment. These optimizations can be performed at several granularities such as Function, Call Graph, Loop, or Module level \cite{lattner2008}. Passes can generally either gather information or perform a transformation on the module of code \cite{llvm-pass-docs}. Some passes may also be run several times, either in sequence or after other passes have been performed to take advantage of new changes introduced by prior passes. Passes have been tenatively organized into pipelines such as -O\{1, 2, 3, s, z\} by compiler authors which optimize for either runtime speed or binary size, at the expense of increased compile time. These pipelines can be quite involved; LLVM's -O3 pass involves approximately 160 optimizations passes which involves optimizations performed at multiple different levels of granularity.
+LLVM is a modern framework for creating compilers. It decouples the parsing of source code from the generation of valid machine code by introducing an intermediate representation (IR) that captures program semantics in a language agnostic format \cite{llvm-paper}. LLVM is also an optimizing compiler. It performs several passes on program IR in an attempt to improve program size, runtime, or both. A "pass" is a single traversal through either the complete code, or a segment. These optimizations can be performed at several granularities such as Function, Call Graph, Loop, or Module level \cite{llvm-paper}. Passes can generally either gather information or perform a transformation on the module of code. Some passes may also be run several times, either in sequence or after other passes have been performed to take advantage of new changes introduced by prior passes. Passes have been tenatively organized into pipelines such as -O\{1, 2, 3, s, z\} by compiler authors which optimize for either runtime speed or binary size, at the expense of increased compile time. These pipelines can be quite involved; LLVM's -O3 pass involves approximately 160 optimizations passes which involves optimizations performed at multiple different levels of granularity.
 
 % TODO: should I include a vocabulary section?
 
@@ -136,7 +137,7 @@ Opti-ML builds on top of the work of Ashouri et al. with the following additions
     \item The use of random forest as an alternative to deep neural networks for IR2Perf
 \end{enumerate}
 
-The rest of the paper is organized as follows. Section 2 discusses the architectures of MLGO and MLGOPerf in more detail, as well as IR2Vec. Section 3 provides detail on how we collected our dataset and our proposed inlining-for-speed training scheme as well as the hardware \& sofwater used for training our agent. Section 4 presents the results of our function inlining heuristic against the default inlining heurstic in LLVM with a varied set of parameters. We also compare against the agents trained by MLGO and MLGOPerf respectively. Finally, section 5 discusses current shortcomings, challenges, and proposes future work. Section 6 concludes the paper.
+The rest of the paper is organized as follows. Section 2 discusses the architectures of MLGO and MLGOPerf in more detail, as well as IR2Vec. Section 3 provides detail on how we collected our dataset and our proposed inlining-for-speed training scheme as well as the hardware \& sofwater used for training our agent. Section 4 presents the results of our function inlining heuristic against the default inlining heurstic and the latest MLGO agent. Finally, section 5 discusses current shortcomings, challenges, and proposes future work. Section 6 concludes the paper.
 
 %Opti-ML builds upon these efforts by creating a full implementation of the MGLOPerf inlining-for-speed training infrastructure, as well as a dataset based on CppPerformanceBenchmarks \cite{cpp-perf-benchmark}. Finally, Opti-ML also replaces the feature extraction layer within MLGOPerf's IR2Perf network with an embedding layer, IR2Vec \cite{ir2vec}.
 
@@ -147,7 +148,7 @@ The rest of the paper is organized as follows. Section 2 discusses the architect
 
 %This work builds upon previous efforts to develop a policy for the function inlining optimization pass in the LLVM C/C++ compiler  \cite{mlgo, mlgoperf}.
 
-%These optimizations can be performed at several granularities such as Function, Call Graph, Loop, or Module level \cite{lattner2008}. 
+%These optimizations can be performed at several granularities such as Function, Call Graph, Loop, or Module level \cite{lattner2008}.
 %Optimizing compilers use heuristics to guide optimizations such as register allocation and function inlining. These heuristics are frequently hand crafted by experts \cite{TODO} and are sometimes augmented with compile-time feedback from Profile Guided Optimization (PGO)  \cite{PGO}.
 %Designing good heuristics is a non-trivial task  \cite{TODO}, but recent work has shown promise in machine-learned policies as an alternative to manually defined policies  \cite{mlgo}. This work builds upon previous efforts to develop a policy for the function inlining optimization pass in the LLVM C/C++ compiler  \cite{mlgo}.
 
@@ -167,12 +168,12 @@ The inlining decision itself consists of several heuristics. A static cost is es
 \subsubsection{Overview}
 MLGO, or the "Machine Learning Guided Compiler Optimization Framework" \cite{mlgo}, was an effort to bridge the gap between academic investigation of machine learning methods for compiler optimization and real world compilers. Trofin et al. worked with the LLVM community to introduce a drop-in, machine-learned replacement for the inlining decision heuristic. Trofin et al. chose the inlining decision heuristic for both the importance of the heuristic, and the ease of measuring final binary size compared to a more noisy statistic like program runtime.
 
-Trofin et al. used both reinforcement learning (RL) and evolutionary strategies to train candidate models for the inlining-for-size heuristic. While Trofin et al. found that the ES method performed slightly better than the RL method, we focus on the RL method in this paper as later work builds on it.
+Trofin et al. used both reinforcement learning (RL) and evolutionary strategies (ES) to train candidate models for the inlining-for-size heuristic. While Trofin et al. found that the ES method performed slightly better than the RL method, we focus on the RL method in this paper as later work builds on it.
 
 \subsubsection{Reinforcement Learning}
-Reinforcement learning is a method for training an agent to understand, and interact with, an environment. The agent, or interchangably the model, learns via trial and error by interacting with its environment. At each time step the agent receives some state $s_t$ which is a collection of features that represent the environment. It takes some action $a_t$ according to its policy, $\pi(s_t)$, which is a distribution over all actions the agent could take conditioned on its current state. After taking an action it receives both its next state and a reward based on the new state, $s_{t+1}, r_{t+1} = \mathcal{R}(s_t, s_{t+1})$. Note that $\mathcal{R}$ is the reward function and is a user designed function. $\mathcal{R}$ is what drives the agent towards a particular goal. In deep reinforcement learning the policy $\pi$ can be learned via a deep network which we will represent as $pi_theta$.
+Reinforcement learning is a method for training an agent to understand, and interact with, an environment. The agent, or interchangably the model, learns via trial and error by interacting with its environment. At each time step the agent receives some state $s_t$ which is a collection of features that represent the environment. It takes some action $a_t$ according to its policy, $\pi(s_t)$, which is a distribution over all actions the agent could take conditioned on its current state. After taking an action it receives both its next state and a reward based on the new state, $s_{t+1}, r_{t+1} = \mathcal{R}(s_t, s_{t+1})$. Note that $\mathcal{R}$ is the reward function and is a user designated function. $\mathcal{R}$ is what drives the agent towards a particular goal. In deep reinforcement learning the policy $\pi$ is learned via a deep network which we will represent as $\pi_{\theta}$ where $\theta$ is the parameters defining the model.
 
-Reinforcement learning can also be thought of as solving a Markov Decision Process (MDP), which is a mathematical framework for repesenting sequential decision making problems such as inlining-for-size. The MDP is represented with the 4-tuple $<\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}>$. Respectively, $\mathcal{S}$ the set of all states, $\mathcal{A}$ the set of all actions, $\mathcal{P}$ the probability distribution of state transitions $\mathcal{P}(s_{t+1}|s_t,a_t)$, and $\mathcal{R}$ the reward function. The goal of RL algorithms is to find some $\pi^*$ that machines the total reward\footnote{$\gamma \in [0, 1]$ is the discount factor. MLGO takes $\gamma = 1$} $R = \Sigma^{T}_{t=0}\gamma r_t$.
+Reinforcement learning can also be thought of as solving a Markov Decision Process (MDP), which is a mathematical framework for repesenting sequential decision making problems such as inlining-for-size. The MDP is represented with the 4-tuple $<\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}>$. Respectively, $\mathcal{S}$ the set of all states, $\mathcal{A}$ the set of all actions, $\mathcal{P}$ the probability distribution of state transitions $\mathcal{P}(s_{t+1}|s_t,a_t)$, and $\mathcal{R}$ the reward function. The goal of RL algorithms is to find some $\pi^*$ that maximizes the total reward\footnote{$\gamma \in [0, 1]$ is the discount factor. MLGO takes $\gamma = 1$, hence we do not discuss it in depth here} $R = \Sigma^{T}_{t=0}\gamma^t r_t$.
 
 Trofin et al modeled inlining-for-size as
 \begin{itemize}
@@ -182,7 +183,7 @@ Trofin et al modeled inlining-for-size as
 \item\textbf{reward}\;$\mathcal{R}$: the native size reduction after inlining is taken (or not taken).
 \end{itemize}
 
-Trofin et al. used Proximal Policy Optimization (PPO) \cite{ppo} which is a member of the Policy Gradient \cite{pg_algo} family of RL algorithms. Policy Gradient methods directly learn some $\pi_theta$ which is updated via $\nabla J(\theta)$ where $J(\theta)$ is the expected reward under $\pi_{\theta}$.
+Trofin et al. used Proximal Policy Optimization (PPO) \cite{ppo} which is a member of the Policy Gradient \cite{pg_algo} family of RL algorithms. Policy Gradient methods directly learn some $\pi_{\theta}$ which is updated via $\nabla J(\theta)$ where $J(\theta)$ is the expected reward under $\pi_{\theta}$.
 
 % TODO: I should probably come back and explain the full PPO if I have the space
 In the interest of simplicity we explain a policy gradient algorithm called REINFORCE \cite{REINFORCE} here. PPO is an enhancement on REINFORCE and the full details can be found in \cite{ppo}.
@@ -193,7 +194,7 @@ $\nabla_{\theta}J(\theta)$ is computed as:
 \end{equation}
 
 In practice this expectation is approximated with Monte Carlo methods using $n$ trajectories\footnote{A trajectory, or an episode, is a sequence of $(s_0, a_0, r_1, s_1, a_1, ..., a_{T-1}, s_T, r_T)$ and the total reward $R$}. $\theta$ is updated as:
-\begin{equation}
+\begin{equation}\label{eq:updatetheta}
     \theta \leftarrow \theta + \alpha\frac{1}{n}\Sigma^{n}_{i=1}\bigl\{\Sigma^{T}_{t=0}R_{i}\nabla_{\theta}log\pi_{theta}(a_{i,t}|s_{i,t})\bigr\}
 \end{equation}
 Note $\alpha$ is the learning rate.
@@ -239,7 +240,7 @@ Using the results of \ref{eq:fruntime} the total speedup of a function compared 
 \end{equation}
 where $X$ denotes an example from the corpus.
 
-The IR, $Func_speedup$ pairs were used to train IR2Perf in a supervised fashion. Prior to training, a collection of 20 features were extracted from the IR to be used as input to the model. Redundant data points were also pruned from the dataset, and the data was normalized and scaled. Finally, PCA was applied to the dataset with $PC=7$ components. The motivation for using PCA was the reduce the sparsity of the data. IR2Perf was trained using Mean Squared Error (MSE) loss function for 5000 epochs.
+The IR, $Func_{speedup}$ pairs were used to train IR2Perf in a supervised fashion. Prior to training, a collection of 20 features were extracted from the IR to be used as input to the model. Redundant data points were also pruned from the dataset, and the data was normalized and scaled. Finally, PCA was applied to the dataset with $PC=7$ components. The motivation for using PCA was the reduce the sparsity of the data. IR2Perf was trained using Mean Squared Error (MSE) loss function for 5000 epochs.
 
 Other than modifying MLGO to use the IR2Perf network to generate runtime rewards, the MLGO training architecture was left unchanged.
 
@@ -264,14 +265,58 @@ The Collective Benchmark (cBench) is a collection of open-source programs with a
 
 We used cBench as our testing corpus.
 
-\subsection{Data Collection}
+\subsection{IR2Perf}
+\subsubsection{Data Collection}
 Unlike MLGOPerf we chose to forgo the use of an autotuner for a few reasons: 1) there were no good open source tuners available for our case, 2) we thought that by instead generating samples under varying inlining conditions we might more uniformly explore the space of inlining configurations, hopefully helping the IR2Perf performance.
 
-We varied the default inlining heuristic by modifying the `-inline-threshold` flag. We used thresholds $\tau$ uniformly randomly sampled from $\bigr\{x\;|\;0 \geq x \leq 1000,\;0 \equiv x (mod\;25)\bigr\}$.
+We varied the default inlining heuristic by modifying the `-inline-threshold` flag. We used thresholds $\tau$ uniformly randomly sampled from $\bigr\{x\;|\;0 \leq x \leq 1000,\;0 \equiv x (mod\;25)\bigr\}$. The inlining threshold controls the cost which a function must stay under to be considered for inlining. Additionally, in order to collect the data for training IR2Perf we compiled each program with `-fno-omit-frame-pointer`\footnote{\href{https://www.brendangregg.com/blog/2024-03-17/the-return-of-the-frame-pointers.html}{https://www.brendangregg.com/blog/2024-03-17/the-return-of-the-frame-pointers.html}} and `-fprofile-generate`.
 
-\subsection{Training IR2Perf}
+We then ran each binary to record runtime information. We limited each run to 1 CPU core via numactl. The system page cache was cleared after each run to avoid influencing subsequent runs. During execution the binaries were monitored by the Linux perf tool and run with LLVM profiling enabled.
 
-\subsection{Training MLGO}
+% TODO: should explain linux perf here!
+
+Traces for each function for benchmark file were collected, except when profiling information was not able to be collected. Because of its nature as a sampling profiler, perf was capable of "missing" a function, especially in the faster benchmark files.
+
+Using this method we collected 111,844 total records which we used to train our own IR2Perf network.
+
+\subsubsection{Training}
+We trained an XGBoost Random Forest model in lieu of a deep neural network. We empirically found that the Random Forest model fit the data better than a deep regression network. %TODO: explain random forest more!
+
+Our training pipeline was as follows: (1) embed IR file using IR2Vec, (2) drop redundant data points, (3) normalize and scale the embedding vectors, (4) perform PCA with PC=7 on the embedding vectors, and (5) fit the model with MSE loss using the precomputed $Func_{speedup}$ as a target variable.
+
+\subsection{Reinforcement Learning Agent}
+
+We used the same training scheme proposed by Ashouri et al., which modified the PPO algorithm used by MLGO to use the IR2Perf network to generate rewards during execution \cite{mlgoperf}. The MLGO training pipeline was otherwise left unmodified.
+
+The algorithm is described in algorithm \ref{alg:mlgo}.
+
+\begin{algorithm}
+    \caption{Training Inliner RL Model using IR2Perf}
+    \label{alg:mlgo}
+\begin{algorithmic}
+    \STATE \textbf{procedure} FunctionSpeedup
+       \FOR{Function f in module}
+       \STATE $FTs \leftarrow getFunctionFeatures()$
+       \STATE $funcReward \leftarrow infer(FTs)$
+       \STATE $totalReward \leftarrow append(funcReward)$
+       \ENDFOR
+       \RETURN $totalReward$
+    \STATE \textbf{end procedure}
+\end{algorithmic}
+\;
+\;
+\begin{algorithmic}
+    \STATE \textbf{procedure} CallsiteInline
+        \STATE initialize policy $\pi_{\gamma}$ randomly
+        \FOR{iteration i in Training}
+        \STATE $s_i \leftarrow Sample_{\mathcal{N}_{(0,1)}}(TrainingData)$
+        \STATE Compile and Get IR with policy $\pi_{\gamma + \sigma_i}$
+        \STATE $R \leftarrow FunctionSpeedup(Module)$
+        \STATE Update policy $\gamma$ for using \ref{eq:updatetheta}
+        \ENDFOR
+    \STATE \textbf{end procedure}
+\end{algorithmic}
+\end{algorithm}
 
 \section{Results}
 \label{results}
@@ -280,12 +325,17 @@ We varied the default inlining heuristic by modifying the `-inline-threshold` fl
 \item IR2Vec-MLGOPerf / MLGOPerf / MLGO / base (with many diff. heuristic values) results on cpp-perf-benchmark, cbench\@.
 \end{itemize}
 
+\include{cpp-perf-results-table.tex}
+\include{cBench-results-table.tex}
+
 \section{Discussion}
 \label{discussion}
 \begin{itemize}
 \item Impact of IR2Vec on MLGOPerf on CBench\@.
 \item Comparison of varying in-lining heuristic with MLGOPerf performance\@.
 \end{itemize}
+
+
 
 \section{Conclusion}
 \label{conclusion}
