@@ -3,19 +3,19 @@
     \label{table:cpp-perf-benchmarks}
     \begin{tabular}{llrr}
 \toprule
-                           &        &  mean\_runtime &  variance \\
+                           &        &  mean runtime (s) &  variance \\
 file & agent &               &           \\
 \midrule
-locales & base &      106.5030 &    7.9667 \\
+locales & base &      103.6343 &    0.3870 \\
                            & mlgo &      104.1613 &    0.1510 \\
                            & policy &      104.3913 &    0.7208 \\
-loop removal & base &       10.9990 &    0.0010 \\
+loop removal & base &      240.0767 &    0.0016 \\
                            & mlgo &      240.0443 &    0.0001 \\
                            & policy &      240.0720 &    0.0002 \\
-rotate bits & base &      122.9357 &    0.0108 \\
+rotate bits & base &      240.0780 &    0.0004 \\
                            & mlgo &      240.0523 &    0.0001 \\
                            & policy &      240.0767 &    0.0007 \\
-scalar replacement structs & base &       95.8873 &    0.0146 \\
+scalar replacement structs & base &      240.0680 &    0.0001 \\
                            & mlgo &      240.0547 &    0.0002 \\
                            & policy &      240.0723 &    0.0001 \\
 \bottomrule

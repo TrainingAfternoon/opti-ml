@@ -159,7 +159,7 @@ The rest of the paper is organized as follows. Section 2 discusses the architect
 \subsection{LLVM Inlining Heuristic}
 The function inlining pass used by the LLVM C/C++ compiler operates on strongly connected components (SCCs) within the call graph of the module under compilation. Every call in every function is considered for inlining, and a yes/no decision is resolved at each point. Finally, several optimizations are applied on the processed SCC after all inlining decisions have been resolved as "cleanup" \cite{mlgo}. These optimizations can have downstream effects on later inlining decisions.
 
-The inlining decision itself consists of several heuristics. A static cost is estimated for inlining the callee into the caller by simulating post-inlining cleanup passes on the callee. A threshold, estimated based on call site hotness and inlining hints, is applied to the cost to determine the go / no-go decision on inlining the callee \cite{mlgo}. The estimated cost can also be influenced by the number of SIMD instructions within the calee or the number of basic blocks\footnote{A sequence of instructions ending with a yield of control flow. A function can potentially be composed of several basic blocks}. The compiler can also choose to defer an inlining decision, returning the callee back to the queue of call sites to consider, if inlining the caller may result in better savings.
+The inlining decision itself consists of several heuristics. A static cost is estimated for inlining the callee into the caller by simulating post-inlining cleanup passes on the callee. A threshold, estimated based on call site hotness and inlining hints, is applied to the cost to determine the go / no-go decision on inlining the callee \cite{mlgo}. The estimated cost can also be influenced by the number of SIMD instructions within the callee or the number of basic blocks\footnote{A sequence of instructions ending with a yield of control flow. A function can potentially be composed of several basic blocks}. The compiler can also choose to defer an inlining decision, returning the callee back to the queue of call sites to consider, if inlining the caller may result in better savings.
 
 % https://llvm.org/doxygen/Inliner_8h_source.html
 
@@ -238,8 +238,8 @@ Each IR example was compiled with instrumentation\footnote{\href{https://clang.l
     Func_{runtime} = \frac{T_{Total} * T_{Func}}{N_{Func}}
 \end{equation}
 
-Using the results of \ref{eq:fruntime} the total speedup of a function compared to the function compiled with no tuning and default compiler settings was computed as:
-\begin{equation}
+Using the results of equation \ref{eq:fruntime} the total speedup of a function compared to the function compiled with no tuning and default compiler settings was computed as:
+\begin{equation}\label{eq:fspeedup}
     Func_{speedup} = \frac{Func_{runtime(Base)}}{Func_{runtime(X)}}
 \end{equation}
 where $X$ denotes an example from the corpus.
@@ -253,11 +253,11 @@ Other than modifying MLGO to use the IR2Perf network to generate runtime rewards
 \subsection{IR2Vec}
 IR2Vec is a general purpose embedding model for LLVM IR \cite{ir2vec}. Embedding models are models which try to learn a transformation over some distribution that preserves the information within the original domain. They are frequently used in the context of NLP to convert natural language into a numeric format within There are two broad classes of embedding models: context window based, like word2vec \cite{word2vec}, and knowledge graph based, like TransE \cite{transE}. 
 
-Context windows try to infer token meaning using proximal tokens. Knowledge graphs, which use an entity-relationship model, can capture longer range relationships by observing the relationships participated in by each entity. A knowledge graph is composed of triplets $\langle h, r, t \rangle$ where $h, t \in Entities$ and $r \in Relations$. The representations of $h, t$ are learned as translations from the head entity $h$ to the tail entity $t$ via the relation $r$ in a high dimensional embedding space \cite{ir2vec}. Given any pair of the triplet, the third member of the triplet should be recoverable in a properly learned knowledge graph.
+Context windows try to infer token meaning using proximal tokens. Knowledge graphs, which use an entity-relationship model, can capture longer range relationships by observing the relationships participated in by each entity. A knowledge graph is composed of triplets $\langle h, r, t \rangle$ where $h, t \in Entities$ and $r \in Relations$. The representations of $h, t$ are learned as translations from the head entity $h$ to the tail entity $t$ via the relation $r$ in a high dimensional embedding space \cite{ir2vec}. Given any pair of the triplet, the third member of the triplet should be recoverable.
 
 % TODO: I really should go and describe the structure of the LLVM IR file in the background section somewhere
 
-IR2Vec uses a knowledge graph based embedding model. Each instruction within the IR file is represented as an entity. Each instruction is considered to participate in the following relations: (1) opcode \& type of the instruction, (2) the opcode \& type of the subsequent instruction, and (3) the relation between the opcode and each of the instructions arguments. More formally, each instruction $l$ can be represented $\langle O, T, A \rangle$ where $O$ is the opcode, $T$ is the type, and $A$ are the arguments of the function $A_1, A_2, ..., A_n$. IR2Vec computes the instruction vector as:
+IR2Vec uses a knowledge graph based embedding model. Each instruction within the IR file is represented as an entity. Each instruction is considered to participate in the following relations: (1) opcode \& type of the instruction, (2) the opcode \& type of the subsequent instruction, and (3) the relation between the opcode and each of the instructions arguments. More formally, each instruction $l$ can be represented $\langle O, T, A \rangle$ where $O$ is the opcode, $T$ is the type, and $A$ is the arguments of the function $A_1, A_2, ..., A_n$. IR2Vec computes the instruction vector as:
 \begin{equation}\label{eq:ir2vec-inst-vec}
     W_o.O + W_t.T + W_a.(A_1 + A_2 + ... + A_n)
 \end{equation}
@@ -282,17 +282,16 @@ CppPerformanceBenchmarks is a collection of C++ files intended to evaluate C++ c
 
 We used CppPerformanceBenchmarks as the basis for our training and validation datasets. We chose CppPerformanceBenchmarks because of its (1) free availability, (2) being compatible with the Clang compiler, and (3) it's ease of use.
 
-%\subsubsection{cBench}
-%The Collective Benchmark (cBench) is a collection of open-source programs with an emphasis on portability and support for several compilers such as GCC, LLVM, etc. The cBench collection has been used for evaluating compiler optimizations within MILEPOST GCC before \cite{cbench}.
-%
-%We used cBench as our testing corpus. It has similar positives to CppPerformanceBenchmarks, as well as being the testing corpus used by MLGOPerf \cite{mlgoperf}.
+\subsubsection{cBench}
+The Collective Benchmark (cBench) is a collection of open-source programs with an emphasis on portability and support for several compilers such as GCC, LLVM, etc. The cBench collection has been used for evaluating compiler optimizations within MILEPOST GCC before \cite{cbench}.
+
+We used cBench as our testing corpus. It has similar positives to CppPerformanceBenchmarks, as well as being the testing corpus used by MLGOPerf \cite{mlgoperf}.
 
 \subsection{IR2Perf}
 \subsubsection{Data Collection}
 Unlike MLGOPerf we chose to forgo the use of an autotuner for a few reasons: 1) there were no good open source tuners available for our case, 2) we thought that by instead generating samples under varying inlining conditions we might more uniformly explore the space of inlining configurations, hopefully helping the IR2Perf performance. We hope that providing the infrastructure for collecting corpuses of IR files with different inlining configurations will help efforts in this area.
 
 We varied the default inlining heuristic by modifying the `-inline-threshold` flag. We used thresholds $\tau$ uniformly randomly sampled from $\bigr\{x\;|\;0 \leq x \leq 1000,\;0 \equiv x (mod\;25)\bigr\}$. The inlining threshold controls the cost which a function must stay under to be considered for inlining. Additionally, in order to collect the data for training IR2Perf we compiled each program with `-fno-omit-frame-pointer`\footnote{\href{https://www.brendangregg.com/blog/2024-03-17/the-return-of-the-frame-pointers.html}{https://www.brendangregg.com/blog/2024-03-17/the-return-of-the-frame-pointers.html}} and `-fprofile-generate`.
-
 We then ran each binary to record runtime information. We limited each run to 1 CPU core via numactl. The system page cache was cleared after each run to avoid influencing subsequent runs. During execution the binaries were monitored by the Linux perf tool and run with LLVM profiling enabled.
 
 Linux perf is a event-oriented observability developed for use by Linux kernel developers. It is capable of observing hardware events like CPU performance counters, as well as taking snapshots of current CPU usage using custom timed interrupt events \cite{perf}. We sample with a frequency of 500Hz. We record the number of CPU cycles observed during progam execution, as well as snapshots of the call stack at each sample. This is used to compute an "overhead" value for each function, or how much time is spent within each function during the lifetime of the program.
@@ -301,18 +300,24 @@ LLVM profiling injects hooks into the compiled code which report function usage 
 
 Traces for each function for benchmark file were collected, except when profiling information was not able to be collected. Because of its nature as a sampling profiler, perf was capable of "missing" a function, especially in the faster benchmark files.
 
+For each function that  we had $N_{func}$ and $T_{func}$ information for, we computed $Func_{speedup}$ using equation \ref{eq:fspeedup}. We computed $Func_{runtime}(Base)$ for each function by taking the average runtime of all instances of the function compiled under the default heuristic settings\footnote{$\tau = 225$} in the dataset.
+
 Using this method we collected 111,844 total records which we used to train our own IR2Perf network.
 
 \subsubsection{Training}
-We trained an XGBoost Random Forest model in lieu of a deep neural network. We empirically found that the Random Forest model fit the data better than a deep regression network, which ended up having numerical issues. Random Forest is an ensemble model which utilizes multiple decision trees which vote together on the final prediction\footnote{\href{https://builtin.com/data-science/random-forest-algorithm}{https://builtin.com/data-science/random-forest-algorithm}}. XGBoost is a method for using gradient boosting to train random forests\footnote{\href{https://xgboost.readthedocs.io/en/stable/tutorials/rf.html}{https://xgboost.readthedocs.io/en/stable/tutorials/rf.html}}.
+We trained an tree ensemble (Random Forest) via the XGBoost algorithm in lieu of a deep neural network. We empirically found that the Random Forest model fit the data better than a deep regression network, which ended up having numerical issues. The tree ensemble utilizes multiple decision trees which vote together on the final prediction\footnote{\href{https://builtin.com/data-science/random-forest-algorithm}{https://builtin.com/data-science/random-forest-algorithm}}. XGBoost is a method for using gradient boosting to train random forests\footnote{\href{https://xgboost.readthedocs.io/en/stable/tutorials/rf.html}{https://xgboost.readthedocs.io/en/stable/tutorials/rf.html}}. We speculate on why tree ensembles may have performed better in section 5.
 
-Our training pipeline was as follows: (1) embed IR file using IR2Vec, (2) drop redundant data points, (3) normalize and scale the embedding vectors, (4) perform PCA with PC=7 on the embedding vectors, and (5) fit the model with MSE loss using the precomputed $Func_{speedup}$ as a target variable.
+During training we trained with a leave-one-out validation strategy to assess the generalization of the model. During final deployment of the model to the RL agent training pipeline, we trained it on all available data.
+
+%Compared to deep dense networks which learn a linear combination of the features at each step, each step in a decision tree introducs a splitting criteria based on a feature in the input vector. Tree ensembles 
+
+Our training pipeline was as follows: (1) embed IR file using IR2Vec, (2) drop redundant data points, (3) normalize and scale the embedding vectors, and (4) fit the model with MSE loss using the precomputed $Func_{speedup}$ as a target variable. We skip the PCA step performed by Ashouri et al. because we empirically did not find it beneficial. We speculate this is because, even if the data is more sparse without PCA, the main benefit we derive from our tree ensemble is its ability to overfit. The additional features likely help individual trees learn subsets of the overall dataset, which helps the overall fit of the model to the data.
 
 \subsection{Reinforcement Learning Agent}
 
 We used the same training scheme proposed by Ashouri et al., which modified the PPO algorithm used by MLGO to use the IR2Perf network to generate rewards during execution \cite{mlgoperf}. The MLGO training pipeline was otherwise left unmodified.
 
-We trained the RL agent for 3000 iterations. Each iteration the model collects several pre-inlining IR samples from the corpus. The current policy is used to make inlining decisions on the IR and then a reward is generated using IR2Perf after embedding the IR immediately before it would be lowered to machine code using IR2Vec. The policy is trained on this subset for $num_policy=3000$ iterations using the current policy $\pi_{\theta}$ \footnote{A detailed set of hyperparameters can be seen at \href{https://github.com/TrainingAfternoon/opti-ml/blob/main/compiler\_opt/rl/inlining/gin\_configs/ppo\_nn\_agent.gin}{https://github.com/TrainingAfternoon/opti-ml/blob/main/compiler\_opt/rl/inlining/gin\_configs/ppo\_nn\_agent.gin}} according to algorithm \ref{alg:mlgo}.
+We trained the RL agent for 3000 iterations. Each iteration the model collects several pre-inlining IR samples from the corpus. The current policy is used to make inlining decisions on the IR and then a reward is generated using IR2Perf after embedding the IR immediately before it would be lowered to machine code using IR2Vec. The policy is trained on this subset for $num\_policy=3000$ iterations using the current policy $\pi_{\theta}$ \footnote{A detailed set of hyperparameters can be seen at \href{https://github.com/TrainingAfternoon/opti-ml/blob/main/compiler\_opt/rl/inlining/gin\_configs/ppo\_nn\_agent.gin}{https://github.com/TrainingAfternoon/opti-ml/blob/main/compiler\_opt/rl/inlining/gin\_configs/ppo\_nn\_agent.gin}} according to algorithm \ref{alg:mlgo}.
 
 \begin{algorithm}
     \caption{Training Inliner RL Model using IR2Perf}
@@ -345,40 +350,55 @@ We trained the RL agent for 3000 iterations. Each iteration the model collects s
 \section{Results}
 \label{results}
 \subsection{IR2Perf}
-The model failed to adequately fit the dataset when trained on the entire collected cpp-perf-benchmarks corpus, as can be seen in figure \ref{fig:ir2perf-fit}. The random forest appears to predict around the mean of the distribution\footnote{In fact it does: $\bar{y} = 0.8755$, $\bar{\hat{y}} = 0.8772$}. We take this as an indication that the network has failed to generalize and is predicting the mean as a means to reduce its MSE loss.
+The model failed to adequately fit the dataset when trained on the entire collected CppPerformanceBenchmarks corpus, as can be seen in figure \ref{fig:ir2perf-fit}. The random forest appears to predict around the mean of the distribution\footnote{In fact it does: $\bar{y} = 0.8755$, $\bar{\hat{y}} = 0.8772$}. We take this as an indication that the network has failed to generalize and is predicting the mean as a means to reduce its MSE loss.
 
 \begin{figure}[h!]
     \centerline{\includegraphics[width=\columnwidth]{ir2perf-fit}}
-    \caption{The fit of the random forest model to entire cpp-perf-benchmarks corpus. $R^2 = 0.1367$}
+    \caption{The fit of the random forest model to entire CppPerformanceBenchmarks corpus. $R^2 = 0.1367$}
     \label{fig:ir2perf-fit}
 \end{figure}
 
 \subsection{Evaluating RL Agent}
-We evaluated the default inlining heuristic, v1.0 of the MLGO inlining-for-size policy\footnote{\href{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}}, and the inlining-for-speed policy we trained. The results of each policy on the training set are included in table \ref{table:cpp-perf-benchmarks}. %and the results of each policy on the testing set are included in table \ref{table:cBench}.
+We evaluated the default inlining heuristic, v1.0 of the MLGO inlining-for-size policy\footnote{\href{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}}, and the inlining-for-speed policy we trained. The results of each policy on the training set are included in table \ref{table:cpp-perf-benchmarks} and the results of each policy on the testing set are included in table \ref{table:cBench}.
+
+We observe that MLGO and our policy tend to do slightly worse, or the same as, the default inlining heuristic. We find this unsurprising for MLGO as MLGO was trained for inlining-for-size, not inlining-for-speed, so we would not expect a significant runtime difference with the default policy. However for our policy, we take the results as evidence that the agent was unable to learn and did not deviate from its learned baseline of imitating the default heuristic. We credit this failure to the failure of our IR2Perf network to adequately learn to predict runtime improvements. We discuss our thoughts more in the following section.
 
 \input{cpp-perf-results-table.tex}
-%\include{cBench-results-table.tex}
-
-%TODO: quickly describe what the numbers mean
+\include{cBench-results-table.tex}
 
 \section{Discussion}
 \label{discussion}
 \subsection{IR2Perf}
-% TODO: if results are good, talk about ranking
-% TODO: if results are bad, talk about IR2Vec being a problem and show figs
+\begin{figure}[h!]
+    \centerline{\includegraphics[width=\columnwidth]{mlp-fit}}
+    \caption{The fit of the best MLP model to entire cpp-perf-benchmarks corpus. $R^2 = -6.7169$}
+    \label{fig:mlp-fit}
+\end{figure}
+
+\begin{figure}[h!]
+    \centerline{\includegraphics[width=\columnwidth]{corr-of-each-feature-w-speedup}}
+    \caption{The Pearson's correlation of each embedding dimension to our target variable, computed over our entire dataset $X$}
+    \label{fig:corr}
+\end{figure}
+
+
+While the tree ensemble did not perform well on the data, it did outperform the best MLP model that we trained (see figure \ref{fig:mlp-fit}). We suspect that this is because MLPs try to create a linear combination of the features at each point in the network, and we found each feature of the embedding space has a very low correlation with our target variable of $Func_{speedup}$ (see fig \ref{fig:corr}). This implies that there is no "pattern" for the MLP to pick up on, hence its lackluster performance.
+
+While the tree ensemble is given the same weakly correlated data, we theorize it is better able to overfit to the data because each tree in the ensemble is learning a set of decision boundaries over the features to place samples. With a large number of trees, we suspect subsets of the trees are learning subsets of the data which may exhibit more of a learnble pattern even if the over all collection is seemingly random.
+
+%We suspect that beyond empirically performing better in our case, tree ensembles may be a more generalizable alternative to deep regression networks for this task. After collecting our dataset we visualized each IR file after performing PCA with $PC=7$ and taking the two components with the most explained variance in figure \ref{fig:pca-no-main}. There is no obvious pattern to the distribution of samples, which explains why we observed that the deep regression network failed to learn (see figure \ref{fig:mlp-training}).
+
 
 \subsection{Future Work}
-We have several directions we would like to take this work next. While we observed worse-than-before results from adding IR2Vec to the IR2Perf model, the use of embedding models to represent IR when trying to predict program runtime still seems promising. We could investigate the creation of a custom embedding model for IR2Perf.
+We have several directions we would like to take this work next. While we observed worse-than-before results from adding IR2Vec to the IR2Perf model, the use of embedding models to represent IR when trying to predict program runtime still seems promising. We could investigate the creation of a custom embedding model for IR2Perf. More work tuning and experimenting with the IR2Perf architecture could also be done.
 
 Another improvement could be the introduction of partial rewards to the policy gradient algorithm described in equation \ref{eq:reinforce}. MLGO opted to approximate partial rewards with the total reward $R$ because of the challenges with generating a partial reward for each inlining decision, but this is a deviation from the proper algorithm. Using IR2Perf we should be able to generate partial rewards by running the IR through the model after each inlining decision instead of after all decisions have been made.
 
 \section{Conclusion}
 \label{conclusion}
-\begin{itemize}
-\item Summarize takeaways\@.
-\end{itemize}
+While we failed to train a successful inlining-for-speed agent, we \emph{did} succeed in creating an end-to-end, openly available architecture for collecting training data, training the IR2Perf network, and integrating it with the MLGO infrastructure. Hopefully this will provide a platform that future research in the space can take advantge of.
 
-% TODO:
+Additionally, while it is a negative result, we have found that there is most likely an issue with (1) not using an autotuner to generate data and/or (2) using IR2Vec embedding vectors are predictors of runtime performance, which can also hopefully guide future work in this space.
 
 % Acknowledgements should only appear in the accepted version.
 \section*{Acknowledgements}

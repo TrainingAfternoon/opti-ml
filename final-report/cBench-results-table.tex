@@ -2,96 +2,90 @@
 %\begin{center}
 \caption{cBench results}
 \label{table:cBench}
-
 \begin{tabular}[t]{llrr}
 \toprule
-                &        &  mean\_runtime &  variance \\
+                &        &  mean runtime (s) &  variance \\
 file & agent &               &           \\
 \midrule
-automotive\_bitcount & base &        2.8820 &    0.0000 \\
-                & mlgo &        1.4797 &    0.0000 \\
-                & policy &        1.4790 &    0.0000 \\
-automotive\_qsort1 & base &        4.3207 &    0.0445 \\
-                & mlgo &        3.9603 &    0.0680 \\
-                & policy &        3.8520 &    0.0010 \\
-automotive\_susan\_c & base &        4.3420 &    0.0084 \\
-                & mlgo &        4.1477 &    0.3710 \\
-                & policy &        3.9800 &    0.0024 \\
-automotive\_susan\_e & base &        4.9197 &    0.0120 \\
-                & mlgo &        3.6880 &    0.3526 \\
-                & policy &        3.6387 &    0.1231 \\
-automotive\_susan\_s & base &        3.0677 &    0.0275 \\
-                & mlgo &        3.3737 &    0.0300 \\
-                & policy &        3.3093 &    0.0229 \\
-bzip2d & base &        8.4847 &    1.4539 \\
-                & mlgo &       21.0097 &   35.1160 \\
-                & policy &        8.0027 &   55.8760 \\
-bzip2e & base &        4.8517 &    1.2697 \\
-                & mlgo &        4.5333 &    0.0717 \\
-                & policy &        3.9097 &    0.0125 \\
-consumer\_jpeg\_c & base &        5.6273 &    0.1472 \\
-                & mlgo &        5.6213 &    0.0597 \\
-                & policy &        5.2290 &    0.1383 \\
-consumer\_jpeg\_d & base &       12.1763 &    0.3222 \\
-                & mlgo &       10.6993 &    2.3097 \\
-                & policy &       11.1373 &    0.4752 \\
-consumer\_lame & base &        4.2117 &    0.3088 \\
-                & mlgo &        4.0360 &    0.1572 \\
-                & policy &        3.7660 &    0.4595 \\
-consumer\_tiff2bw & base &        7.5163 &    0.4197 \\
-                & mlgo &        7.5157 &    0.3752 \\
-                & policy &        8.0403 &    0.3328 \\
-consumer\_tiff2rgba & base &       12.7763 &    0.6915 \\
-                & mlgo &       12.3693 &    0.3843 \\
-                & policy &       12.8823 &    0.3112 \\
+automotive\_bitcount & base &        2.8723 &    0.0004 \\
+                & mlgo &        1.4760 &    0.0001 \\
+                & policy &        1.4807 &    0.0002 \\
+automotive\_qsort1 & base &        4.1610 &    0.0003 \\
+                & mlgo &        4.1087 &    0.0032 \\
+                & policy &        4.1010 &    0.0038 \\
+automotive\_susan\_c & base &        4.0607 &    0.0019 \\
+                & mlgo &        4.7107 &    0.3834 \\
+                & policy &        4.6183 &    0.2083 \\
+automotive\_susan\_e & base &        3.8733 &    0.0019 \\
+                & mlgo &        3.5863 &    0.0865 \\
+                & policy &        3.8360 &    0.2206 \\
+automotive\_susan\_s & base &        2.9650 &    0.0001 \\
+                & mlgo &        3.3570 &    0.0605 \\
+                & policy &        3.3540 &    0.0290 \\
+bzip2d & base &        4.8217 &    0.0231 \\
+                & mlgo &       10.4940 &   13.6295 \\
+                & policy &       11.0360 &   29.5467 \\
+bzip2e & base &        3.8000 &    0.0018 \\
+                & mlgo &        5.2297 &    0.0222 \\
+                & policy &        5.0063 &    0.1599 \\
+consumer\_jpeg\_c & base &        5.2367 &    0.0121 \\
+                & mlgo &        5.5857 &    0.0899 \\
+                & policy &        5.7590 &    0.5314 \\
+consumer\_jpeg\_d & base &       10.9033 &    0.8649 \\
+                & mlgo &       14.2463 &   23.3346 \\
+                & policy &       13.7590 &    2.0387 \\
+consumer\_lame & base &        3.9433 &    0.0079 \\
+                & mlgo &        3.3437 &    0.5989 \\
+                & policy &        3.2883 &    0.4415 \\
+consumer\_tiff2bw & base &        6.9603 &    0.0708 \\
+                & mlgo &        9.3600 &    1.7578 \\
+                & policy &        8.0513 &    1.5820 \\
+consumer\_tiff2rgba & base &       10.8903 &   33.4148 \\
+                & mlgo &       13.3303 &    0.2384 \\
+                & policy &       12.0370 &    1.7586 \\
 \end{tabular}
-\;
-\;
 \begin{tabular}[t]{llrr}
-\toprule
-                &        &  mean\_runtime &  variance \\
-file & agent &               &           \\
-\midrule
-consumer\_tiffdither & base &        7.5450 &    0.5708 \\
-                & mlgo &        7.5607 &    0.1149 \\
-                & policy &        7.3280 &    0.3008 \\
-consumer\_tiffmedian & base &        4.6420 &    0.0268 \\
-                & mlgo &        4.8743 &    0.3393 \\
-                & policy &        4.4903 &    0.0948 \\
-network\_dijkstra & base &        0.4893 &    0.0010 \\
-                & mlgo &        0.5253 &    0.0006 \\
-                & policy &        0.4857 &    0.0008 \\
-network\_patricia & base &        3.0603 &    0.2653 \\
-                & mlgo &        2.4910 &    0.0077 \\
-                & policy &        2.3667 &    0.0007 \\
-office\_stringsearch1 & base &        3.0513 &    0.0000 \\
-                & mlgo &        3.0067 &    0.0000 \\
-                & policy &        3.0003 &    0.0000 \\
-security\_blowfish\_d & base &        7.7327 &    0.0012 \\
-                & mlgo &        7.4707 &    0.0010 \\
-                & policy &        7.4700 &    0.0010 \\
-security\_blowfish\_e & base &        7.7310 &    0.0000 \\
-                & mlgo &        7.5793 &    0.0006 \\
-                & policy &        7.5460 &    0.0008 \\
-security\_rijndael\_d & base &       34.3053 &    1.2041 \\
-                & mlgo &       32.6087 &    1.9962 \\
-                & policy &       33.0133 &    1.4967 \\
-security\_rijndael\_e & base &       35.8230 &    1.2207 \\
-                & mlgo &       34.4080 &    1.0288 \\
-                & policy &       30.3487 &    1.3440 \\
-security\_sha & base &        6.3510 &    0.0038 \\
-                & mlgo &        5.6123 &    0.0059 \\
-                & policy &        5.5323 &    0.0026 \\
-telecom\_CRC32 & base &        2.4580 &    0.0000 \\
-                & mlgo &        2.4640 &    0.0000 \\
-                & policy &        2.4530 &    0.0004 \\
-telecom\_adpcm\_c & base &        3.9810 &    0.0007 \\
-                & mlgo &        4.0097 &    0.0003 \\
-                & policy &        4.0137 &    0.0000 \\
-telecom\_adpcm\_d & base &        3.8277 &    0.0010 \\
-                & mlgo &        3.6897 &    0.0009 \\
-                & policy &        3.6970 &    0.0007 \\
+consumer\_tiffdither & base &        6.6327 &    0.0582 \\
+                & mlgo &        7.5237 &    0.3659 \\
+                & policy &        7.2720 &    0.0085 \\
+consumer\_tiffmedian & base &        4.4033 &    0.0125 \\
+                & mlgo &        4.7023 &    0.0420 \\
+                & policy &        4.5587 &    0.0124 \\
+network\_dijkstra & base &        0.5150 &    0.0003 \\
+                & mlgo &        0.5207 &    0.0000 \\
+                & policy &        0.5160 &    0.0001 \\
+network\_patricia & base &        2.2740 &    0.0137 \\
+                & mlgo &        2.4783 &    0.0050 \\
+                & policy &        2.4427 &    0.0024 \\
+office\_stringsearch1 & base &        3.0263 &    0.0002 \\
+                & mlgo &        2.9970 &    0.0000 \\
+                & policy &        2.9943 &    0.0000 \\
+security\_blowfish\_d & base &        7.7403 &    0.0000 \\
+                & mlgo &        7.4630 &    0.0001 \\
+                & policy &        7.4567 &    0.0000 \\
+security\_blowfish\_e & base &        7.7123 &    0.0001 \\
+                & mlgo &        7.5580 &    0.0001 \\
+                & policy &        7.5590 &    0.0000 \\
+security\_rijndael\_d & base &       29.9463 &    0.7761 \\
+                & mlgo &       41.2183 &    1.0895 \\
+                & policy &       41.0523 &    1.3160 \\
+security\_rijndael\_e & base &       29.1957 &    0.1716 \\
+                & mlgo &       41.5253 &    2.0253 \\
+                & policy &       41.0150 &    6.7436 \\
+security\_sha & base &        6.2483 &    0.0001 \\
+                & mlgo &        5.5697 &    0.0005 \\
+                & policy &        5.5600 &    0.0004 \\
+telecom\_CRC32 & base &        2.4420 &    0.0001 \\
+                & mlgo &        2.4493 &    0.0002 \\
+                & policy &        2.4480 &    0.0027 \\
+telecom\_adpcm\_c & base &        3.9727 &    0.0000 \\
+                & mlgo &        4.0133 &    0.0000 \\
+                & policy &        4.0170 &    0.0000 \\
+telecom\_adpcm\_d & base &        3.8327 &    0.0000 \\
+                & mlgo &        3.6910 &    0.0000 \\
+                & policy &        3.6947 &    0.0003 \\
 \bottomrule
 \end{tabular}
+
 %\end{center}
 \end{table*}
