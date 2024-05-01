@@ -110,7 +110,9 @@ ML Guided Inlining for Performance}
 %\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
 
 \begin{abstract}
-FOO BAR BAZ
+    Optimizing compilers are very complicated pieces of software, relying on heuristics which have been handcrafted and fine tuned by domain experts. In recent years machine learning (ML) techniques have shown promise as a way to learn these heuristics. We introduce work done by two previous authors in the space of ML compiler optimization, specifically with respect to \emph{function inlining}. We also create a full end-to-end pipeline for the LLVM C/C++ compiler capable of (1) creating a dataset, (2) training a reward model, and (3) training an RL agent to resolve inlining decisions during compile time.
+    % TODO: discuss results here if applicable
+
 \end{abstract}
 
 \section{Introduction}
@@ -155,7 +157,7 @@ The rest of the paper is organized as follows. Section 2 discusses the architect
 \section{Background}
 \label{background}
 \subsection{LLVM Inlining Heuristic}
-The function inlining pass used by the LLVM C/C++ compiler operates on strongly connected components (SCCs) within the call graph of the module under compilation. Every call in every function is considered for inlining, and a yes/no decision is resolved at each point. Finally, several optimizations are applied on the processed SCC after all inlining decisions have been resolved \as "cleanup" cite{mlgo}. These optimizations can have downstream effects on later inlining decisions.
+The function inlining pass used by the LLVM C/C++ compiler operates on strongly connected components (SCCs) within the call graph of the module under compilation. Every call in every function is considered for inlining, and a yes/no decision is resolved at each point. Finally, several optimizations are applied on the processed SCC after all inlining decisions have been resolved as "cleanup" \cite{mlgo}. These optimizations can have downstream effects on later inlining decisions.
 
 The inlining decision itself consists of several heuristics. A static cost is estimated for inlining the callee into the caller by simulating post-inlining cleanup passes on the callee. A threshold, estimated based on call site hotness and inlining hints, is applied to the cost to determine the go / no-go decision on inlining the callee \cite{mlgo}. The estimated cost can also be influenced by the number of SIMD instructions within the calee or the number of basic blocks\footnote{A sequence of instructions ending with a yield of control flow. A function can potentially be composed of several basic blocks}. The compiler can also choose to defer an inlining decision, returning the callee back to the queue of call sites to consider, if inlining the caller may result in better savings.
 
@@ -280,10 +282,10 @@ CppPerformanceBenchmarks is a collection of C++ files intended to evaluate C++ c
 
 We used CppPerformanceBenchmarks as the basis for our training and validation datasets. We chose CppPerformanceBenchmarks because of its (1) free availability, (2) being compatible with the Clang compiler, and (3) it's ease of use.
 
-\subsubsection{cBench}
-The Collective Benchmark (cBench) is a collection of open-source programs with an emphasis on portability and support for several compilers such as GCC, LLVM, etc. The cBench collection has been used for evaluating compiler optimizations within MILEPOST GCC before \cite{cbench}.
-
-We used cBench as our testing corpus. It has similar positives to CppPerformanceBenchmarks, as well as being the testing corpus used by MLGOPerf \cite{mlgoperf}.
+%\subsubsection{cBench}
+%The Collective Benchmark (cBench) is a collection of open-source programs with an emphasis on portability and support for several compilers such as GCC, LLVM, etc. The cBench collection has been used for evaluating compiler optimizations within MILEPOST GCC before \cite{cbench}.
+%
+%We used cBench as our testing corpus. It has similar positives to CppPerformanceBenchmarks, as well as being the testing corpus used by MLGOPerf \cite{mlgoperf}.
 
 \subsection{IR2Perf}
 \subsubsection{Data Collection}
@@ -352,10 +354,10 @@ The model failed to adequately fit the dataset when trained on the entire collec
 \end{figure}
 
 \subsection{Evaluating RL Agent}
-We evaluated the default inlining heuristic, v1.0 of the MLGO inlining-for-size policy\footnote{\href{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}}, and the inlining-for-speed policy we trained. The results of each policy on the training set are included in table \ref{table:cpp-perf-benchmarks} and the results of each policy on the testing set are included in table \ref{table:cBench}.
+We evaluated the default inlining heuristic, v1.0 of the MLGO inlining-for-size policy\footnote{\href{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}}, and the inlining-for-speed policy we trained. The results of each policy on the training set are included in table \ref{table:cpp-perf-benchmarks}. %and the results of each policy on the testing set are included in table \ref{table:cBench}.
 
 \input{cpp-perf-results-table.tex}
-\include{cBench-results-table.tex}
+%\include{cBench-results-table.tex}
 
 %TODO: quickly describe what the numbers mean
 
@@ -368,16 +370,15 @@ We evaluated the default inlining heuristic, v1.0 of the MLGO inlining-for-size 
 \subsection{Future Work}
 We have several directions we would like to take this work next. While we observed worse-than-before results from adding IR2Vec to the IR2Perf model, the use of embedding models to represent IR when trying to predict program runtime still seems promising. We could investigate the creation of a custom embedding model for IR2Perf.
 
-Another improvement could be the introduction of partial rewards to the PPO algorithm described in equation \ref{eq:REINFORCE}. MLGO opted to approximate partial rewards with the total reward $R$ because of the challenges with generating a partial reward for each inlining decision, but this is a deviation from the proper algorithm. Using IR2Perf we should be able to generate partial rewards by running the IR through the model after each inlining decision instead of after all decisions have been made.
-
-Finally, %TODO: finish this thought
-
+Another improvement could be the introduction of partial rewards to the policy gradient algorithm described in equation \ref{eq:reinforce}. MLGO opted to approximate partial rewards with the total reward $R$ because of the challenges with generating a partial reward for each inlining decision, but this is a deviation from the proper algorithm. Using IR2Perf we should be able to generate partial rewards by running the IR through the model after each inlining decision instead of after all decisions have been made.
 
 \section{Conclusion}
 \label{conclusion}
 \begin{itemize}
 \item Summarize takeaways\@.
 \end{itemize}
+
+% TODO:
 
 % Acknowledgements should only appear in the accepted version.
 \section*{Acknowledgements}
