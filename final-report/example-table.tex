@@ -1,0 +1,153 @@
+%\begin{table*}
+%\begin{tabular}{llrr}
+%\toprule
+%       &                            &  mean\_runtime &     variance \\
+%agent & file &               &              \\
+%\midrule
+%base & functionobjects &    180.210000 &     0.001816 \\
+%       & locales &    106.503000 &     7.966743 \\
+%       & loop removal &     10.999000 &     0.000991 \\
+%       & machine &     63.666667 &  1441.760000 \\
+%       & rotate bits &    122.935667 &     0.010828 \\
+%       & scalar replacement structs &     95.887333 &     0.014584 \\
+%mlgo & functionobjects &    300.703333 &     0.026264 \\
+%       & locales &    106.270333 &     0.029683 \\
+%       & loop removal &      0.195333 &     0.000575 \\
+%       & machine &     62.333333 &  3674.960000 \\
+%       & rotate bits &    116.496667 &     0.059809 \\
+%       & scalar replacement structs &     96.981000 &     0.013413 \\
+%policy & functionobjects &    300.783333 &     0.041136 \\
+%       & locales &    106.583333 &     8.270672 \\
+%       & loop removal &      0.193333 &     0.005982 \\
+%       & machine &     62.000000 &   572.560000 \\
+%       & rotate bits &    116.543333 &     0.038434 \\
+%       & scalar replacement structs &     96.986000 &     0.063751 \\
+%\bottomrule
+%\end{tabular}
+%\end{table*}
+%'
+\begin{table*}
+\begin{center}
+\begin{tabular}{llrr}
+\toprule
+       &                                                     &  mean\_runtime &      variance \\
+agent & file &               &               \\
+\midrule
+base & automotive\_bitcount &    655.178667 &  6.169565e+04 \\
+       & automotive\_qsort1 &    212.924000 &  2.111193e+04 \\
+       & automotive\_susan\_c &    213.169667 &  8.910138e+03 \\
+       & automotive\_susan\_e &    493.936333 &  6.005057e+04 \\
+       & automotive\_susan\_s &    125.518667 &  2.852946e+04 \\
+       & bzip2d &    299.209000 &  2.506669e+04 \\
+       & bzip2e &    253.886000 &  3.574372e+04 \\
+       & consumer\_jpeg\_c &    314.421000 &  2.528385e+04 \\
+       & consumer\_jpeg\_d &     98.927000 &  6.254097e+02 \\
+       & consumer\_lame &    191.997000 &  3.430127e+04 \\
+       & consumer\_mad &      0.336667 &  1.596012e-01 \\
+       & consumer\_tiff2bw &     97.746333 &  1.113905e+04 \\
+       & consumer\_tiff2rgba &    100.657000 &  6.257263e+02 \\
+       & consumer\_tiffdither &    276.854333 &  3.817741e+04 \\
+       & consumer\_tiffmedian &    333.498000 &  2.963912e+04 \\
+       & functionobjects &    180.210000 &  1.816000e-03 \\
+       & locales &    106.503000 &  7.966743e+00 \\
+       & loop removal &     10.999000 &  9.908000e-04 \\
+       & machine &     63.666667 &  1.441760e+03 \\
+       & network\_dijkstra &    348.332667 &  1.843216e+04 \\
+       & network\_patricia &    289.583333 &  1.423162e+04 \\
+       & office\_ispell &      0.002667 &  1.000000e-06 \\
+       & office\_rsynth &    653.181333 &  6.184865e+04 \\
+       & office\_stringsearch1 &     11.403667 &  1.743594e+00 \\
+       & rotate bits &    122.935667 &  1.082784e-02 \\
+       & scalar replacement structs &     95.887333 &  1.458424e-02 \\
+       & security\_blowfish\_d &    573.665000 &  4.569097e+04 \\
+       & security\_blowfish\_e &    574.309333 &  4.315403e+04 \\
+       & security\_pgp\_d &      0.337000 &  1.595613e-01 \\
+       & security\_pgp\_e &      0.336667 &  1.596012e-01 \\
+       & security\_rijndael\_d &    291.031000 &  5.626521e+03 \\
+       & security\_rijndael\_e &    295.379333 &  5.626687e+03 \\
+       & security\_sha &    235.830000 &  8.735880e+03 \\
+       & telecom\_CRC32 &    331.280667 &  1.485247e+04 \\
+       & telecom\_adpcm\_c &    553.294000 &  7.096672e+04 \\
+       & telecom\_adpcm\_d &    631.111667 &  5.528756e+04 \\
+       & telecom\_gsm &    493.520000 &  3.189221e+04 \\
+       & tmp\_bat: line 1: ./a.out: No such file or directory &      0.005000 &  8.970425e-02 \\
+mlgo & automotive\_bitcount &    332.977000 &  1.524227e+04 \\
+       & automotive\_qsort1 &    651.824333 &  6.534308e+04 \\
+       & automotive\_susan\_c &    191.018000 &  3.149899e+04 \\
+       & automotive\_susan\_e &    252.955333 &  2.204654e+04 \\
+       & automotive\_susan\_s &    250.266000 &  1.668642e+04 \\
+       & bzip2d &    156.206667 &  2.064981e+03 \\
+       & bzip2e &    311.126000 &  2.821471e+04 \\
+       & consumer\_jpeg\_c &    392.585000 &  3.662940e+04 \\
+       & consumer\_jpeg\_d &    137.663333 &  2.478698e+04 \\
+       & consumer\_lame &    253.825000 &  1.249241e+04 \\
+       & consumer\_mad &      0.004333 &  8.974421e-02 \\
+       & consumer\_tiff2bw &    415.714333 &  3.831911e+04 \\
+       & consumer\_tiff2rgba &     99.666000 &  6.254649e+02 \\
+       & consumer\_tiffdither &    455.445667 &  3.071994e+04 \\
+       & consumer\_tiffmedian &    192.336333 &  3.028259e+04 \\
+       & functionobjects &    300.703333 &  2.626400e-02 \\
+       & locales &    106.270333 &  2.968344e-02 \\
+       & loop removal &      0.195333 &  5.754400e-04 \\
+       & machine &     62.333333 &  3.674960e+03 \\
+       & network\_dijkstra &    385.702333 &  2.143140e+04 \\
+       & network\_patricia &    331.025000 &  1.948128e+04 \\
+       & office\_ispell &      0.002333 &  1.200000e-06 \\
+       & office\_rsynth &    670.852667 &  6.461140e+04 \\
+       & office\_stringsearch1 &      5.340667 &  1.499055e+00 \\
+       & rotate bits &    116.496667 &  5.980856e-02 \\
+       & scalar replacement structs &     96.981000 &  1.341304e-02 \\
+       & security\_blowfish\_d &    338.313667 &  1.589985e+04 \\
+       & security\_blowfish\_e &    418.441667 &  2.238791e+04 \\
+       & security\_pgp\_d &      0.004000 &  8.976176e-02 \\
+       & security\_pgp\_e &      0.003333 &  8.980100e-02 \\
+       & security\_rijndael\_d &    286.814667 &  5.627148e+03 \\
+       & security\_rijndael\_e &    291.700333 &  5.626633e+03 \\
+       & security\_sha &    434.169000 &  2.738402e+04 \\
+       & telecom\_CRC32 &    331.622333 &  1.490077e+04 \\
+       & telecom\_adpcm\_c &      8.673667 &  2.674462e+04 \\
+       & telecom\_adpcm\_d &    528.926000 &  3.936642e+04 \\
+       & telecom\_gsm &    174.040667 &  4.747778e+03 \\
+       & tmp\_bat: line 1: ./a.out: No such file or directory &      0.670333 &  2.093415e-01 \\
+policy & automotive\_bitcount &    332.640333 &  1.521782e+04 \\
+       & automotive\_qsort1 &    633.475333 &  5.561526e+04 \\
+       & automotive\_susan\_c &    715.310333 &  7.102395e+04 \\
+       & automotive\_susan\_e &    152.344333 &  8.343731e+03 \\
+       & automotive\_susan\_s &    191.822667 &  1.112065e+04 \\
+       & bzip2d &     64.441333 &  1.436236e+03 \\
+       & bzip2e &    488.145000 &  5.982136e+04 \\
+       & consumer\_jpeg\_c &     74.925000 &  3.631679e+03 \\
+       & consumer\_jpeg\_d &     96.521667 &  6.255695e+02 \\
+       & consumer\_lame &    112.462333 &  2.503643e+04 \\
+       & consumer\_mad &      0.004000 &  8.976416e-02 \\
+       & consumer\_tiff2bw &    297.137000 &  3.169747e+04 \\
+       & consumer\_tiff2rgba &    100.969667 &  6.253456e+02 \\
+       & consumer\_tiffdither &    433.403000 &  3.962935e+04 \\
+       & consumer\_tiffmedian &    154.244000 &  2.107417e+04 \\
+       & functionobjects &    300.783333 &  4.113600e-02 \\
+       & locales &    106.583333 &  8.270672e+00 \\
+       & loop removal &      0.193333 &  5.981760e-03 \\
+       & machine &     62.000000 &  5.725600e+02 \\
+       & network\_dijkstra &    347.993667 &  1.836531e+04 \\
+       & network\_patricia &    250.160667 &  8.416241e+03 \\
+       & office\_ispell &      0.002667 &  1.290000e-06 \\
+       & office\_rsynth &    654.182667 &  5.927159e+04 \\
+       & office\_stringsearch1 &      4.665667 &  1.811311e+00 \\
+       & rotate bits &    116.543333 &  3.843424e-02 \\
+       & scalar replacement structs &     96.986000 &  6.375064e-02 \\
+       & security\_blowfish\_d &    337.302667 &  1.573460e+04 \\
+       & security\_blowfish\_e &    414.737667 &  2.203546e+04 \\
+       & security\_pgp\_d &      0.001667 &  6.100000e-07 \\
+       & security\_pgp\_e &      0.337000 &  1.595615e-01 \\
+       & security\_rijndael\_d &    288.510000 &  5.626631e+03 \\
+       & security\_rijndael\_e &    231.186000 &  3.929236e+03 \\
+       & security\_sha &    375.729667 &  1.964994e+04 \\
+       & telecom\_CRC32 &    328.939000 &  1.466155e+04 \\
+       & telecom\_adpcm\_c &      7.351000 &  1.827727e+00 \\
+       & telecom\_adpcm\_d &    545.933667 &  4.129142e+04 \\
+       & telecom\_gsm &    175.048000 &  4.802339e+03 \\
+       & tmp\_bat: line 1: ./a.out: No such file or directory &      0.336000 &  1.596808e-01 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table*}
