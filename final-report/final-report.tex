@@ -305,7 +305,7 @@ For each function that  we had $N_{func}$ and $T_{func}$ information for, we com
 Using this method we collected 111,844 total records which we used to train our own IR2Perf network.
 
 \subsubsection{Training}
-We trained an tree ensemble (Random Forest) via the XGBoost algorithm in lieu of a deep neural network. We empirically found that the Random Forest model fit the data better than a deep regression network, which ended up having numerical issues. The tree ensemble utilizes multiple decision trees which vote together on the final prediction\footnote{\href{https://builtin.com/data-science/random-forest-algorithm}{https://builtin.com/data-science/random-forest-algorithm}}. XGBoost is a method for using gradient boosting to train random forests\footnote{\href{https://xgboost.readthedocs.io/en/stable/tutorials/rf.html}{https://xgboost.readthedocs.io/en/stable/tutorials/rf.html}}. We speculate on why tree ensembles may have performed better in section 5.
+We trained an tree ensemble (Random Forest) via the XGBoost algorithm in lieu of a deep neural network. We empirically found that the Random Forest model fit the data better than a deep regression network (MLP), which ended up having numerical issues. The tree ensemble utilizes multiple decision trees which vote together on the final prediction\footnote{\href{https://builtin.com/data-science/random-forest-algorithm}{https://builtin.com/data-science/random-forest-algorithm}}. XGBoost is a method for using gradient boosting to train random forests\footnote{\href{https://xgboost.readthedocs.io/en/stable/tutorials/rf.html}{https://xgboost.readthedocs.io/en/stable/tutorials/rf.html}}. We speculate on why tree ensembles may have performed better in section 5.
 
 During training we trained with a leave-one-out validation strategy to assess the generalization of the model. During final deployment of the model to the RL agent training pipeline, we trained it on all available data.
 
@@ -361,7 +361,7 @@ The model failed to adequately fit the dataset when trained on the entire collec
 \subsection{Evaluating RL Agent}
 We evaluated the default inlining heuristic, v1.0 of the MLGO inlining-for-size policy\footnote{\href{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}{https://github.com/google/ml-compiler-opt/releases/tag/inlining-Oz-v1.0}}, and the inlining-for-speed policy we trained. The results of each policy on the training set are included in table \ref{table:cpp-perf-benchmarks} and the results of each policy on the testing set are included in table \ref{table:cBench}.
 
-We observe that MLGO and our policy tend to do slightly worse, or the same as, the default inlining heuristic. We find this unsurprising for MLGO as MLGO was trained for inlining-for-size, not inlining-for-speed, so we would not expect a significant runtime difference with the default policy. However for our policy, we take the results as evidence that the agent was unable to learn and did not deviate from its learned baseline of imitating the default heuristic. We credit this failure to the failure of our IR2Perf network to adequately learn to predict runtime improvements. We discuss our thoughts more in the following section.
+We observe that MLGO and our policy tend to do slightly worse, or the same as, the default inlining heuristic. In a few instances, it does significantly worse\footnote{Such as security\_rijndae1\_e in table \ref{table:cBench}}, though these examples have high variance potentially indicating a noisy test. We find this unsurprising for MLGO as MLGO was trained for inlining-for-size, not inlining-for-speed, so we would not expect a significant runtime difference with the default policy. However for our policy, we take the results as evidence that the agent was unable to learn and did not deviate from its learned baseline of imitating the default heuristic. We credit this failure to the failure of our IR2Perf network to adequately learn to predict runtime improvements. We discuss our thoughts more in the following section.
 
 \input{cpp-perf-results-table.tex}
 \include{cBench-results-table.tex}
@@ -371,7 +371,7 @@ We observe that MLGO and our policy tend to do slightly worse, or the same as, t
 \subsection{IR2Perf}
 \begin{figure}[h!]
     \centerline{\includegraphics[width=\columnwidth]{mlp-fit}}
-    \caption{The fit of the best MLP model to entire cpp-perf-benchmarks corpus. $R^2 = -6.7169$}
+    \caption{The fit of the best MLP model to entire CppPerformanceBenchmarks corpus. $R^2 = -6.7169$}
     \label{fig:mlp-fit}
 \end{figure}
 
