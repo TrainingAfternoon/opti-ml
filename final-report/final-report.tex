@@ -157,7 +157,7 @@ The rest of the paper is organized as follows. Section 2 discusses the architect
 \subsection{LLVM Inlining Heuristic}
 The function inlining pass used by the LLVM C/C++ compiler operates on strongly connected components (SCCs) within the call graph of the module under compilation. Every call in every function is considered for inlining, and a yes/no decision is resolved at each point. Finally, several optimizations are applied on the processed SCC after all inlining decisions as "cleanup" have been resolved \cite{mlgo}. These optimizations can have downstream effects on later inlining decisions.
 
-The inlining decision itself consists of several heuristics. A static cost is estimated for inlining the callee into the caller by simulating post-inlining cleanup passes on the callee. A threshold, estimated based on call site hotness and inlining hints, is applied to the cost to determine the go / no-go decision on inlining the callee \cite{mlgo}. The estimated cost can also be influenced by the number of SIMD instructions within the calee or the number of basic blocks. The compiler can also choose to defer an inlining decision, returning the callee back to the queue of call sites to consider, if inlining the caller may result in better savings.
+The inlining decision itself consists of several heuristics. A static cost is estimated for inlining the callee into the caller by simulating post-inlining cleanup passes on the callee. A threshold, estimated based on call site hotness and inlining hints, is applied to the cost to determine the go / no-go decision on inlining the callee \cite{mlgo}. The estimated cost can also be influenced by the number of SIMD instructions within the calee or the number of basic blocks\footnote{A sequence of instructions ending with a yield of control flow. A function can potentially be composed of several basic blocks}. The compiler can also choose to defer an inlining decision, returning the callee back to the queue of call sites to consider, if inlining the caller may result in better savings.
 
 % https://llvm.org/doxygen/Inliner_8h_source.html
 
@@ -247,7 +247,25 @@ Other than modifying MLGO to use the IR2Perf network to generate runtime rewards
 %An issue identified by the MLGO paper with training an inlining-for-speed agent was the development of a good proxy for speed. Benchmarking code modules is very time expensive, which would make training prohibitive except on specially selected datasets \cite{mlgo}. Ashouri et al. proposed the addition of a second model, IR2Perf, which predicts an estimate of binary runtime based on the IR \cite{mlgoperf}.
 
 \subsection{IR2Vec}
-TODO
+IR2Vec is a general purpose embedding model for LLVM IR \cite{ir2vec}. Embedding models are models which try to learn a transformation over some distribution that preserves the information within the original domain. They are frequently used in the context of NLP to convert natural language into a numeric format within There are two broad classes of embedding models: context window based, like word2vec \cite{word2vec}, and knowledge graph based, like TransE \cite{transE}. 
+
+Context windows try to infer token meaning using proximal tokens. Knowledge graphs, which use an entity-relationship model, can capture longer range relationships by observing the relationships participated in by each entity. A knowledge graph is composed of triplets $\langle h, r, t \rangle$ where $h, t \in Entities$ and $r \in Relations$. The representations of $h, t$ are learned as translations from the head entity $h$ to the tail entity $t$ via the relation $r$ in a high dimensional embedding space \cite{ir2vec}. Given any pair of the triplet, the third member of the triplet should be recoverable in a properly learned knowledge graph.
+
+% TODO: I really should go and describe the structure of the LLVM IR file in the background section somewhere
+
+IR2Vec uses a knowledge graph based embedding model. Each instruction within the IR file is represented as an entity. Each instruction is considered to participate in the following relations: (1) opcode \& type of the instruction, (2) the opcode \& type of the subsequent instruction, and (3) the relation between the opcode and each of the instructions arguments. More formally, each instruction $l$ can be represented $\langle O, T, A \rangle$ where $O$ is the opcode, $T$ is the type, and $A$ are the arguments of the function $A_1, A_2, ..., A_n$. IR2Vec computes the instruction vector as:
+\begin{equation}\label{eq:ir2vec-inst-vec}
+    W_o.O + W_t.T + W_a.(A_1 + A_2 + ... + A_n)
+\end{equation}
+where $.$ is the scalar multiplication operator and $W_o, W_t, W_a$ are scalars $\in [0, 1]$. $W_o, W_t, W_a$ are chosen in accordance with a heuristic such that $W_o > W_t > W_a$.
+
+IR2Vec refers to instruction vectors such as these as "symbolic vectors". The instructions are used in conjunction with TransE to learn a "seed embedding vocabulary" which is used to lookup instruction vectors based on instruction at inference time. There are a second class of instruction vectors which IR2Vec refers to as "flow aware" which make use of the other information within the IR such as $use-def$ (UD) information. UD information encodes the different lifetimes of a variable, or its uses. Variables hich are currently in use are said to be "live". Flow aware embeddings are described in more detail in the original paper \cite{ir2vec}.
+
+Live instruction vectors are grouped by the basic block that they belong to and summed to create basic block level embedding vector. Functions are composed of potentially several basic blocks and can be created in the same way. Similarly, function level embedding vectors can be summed to create a representative vector of the entire module.
+
+%IR2Vec uses a entity-relation model of the IR where individual instructions are entities, and the relations between instructions are edges.
+
+%This can be formalized as a set of triplets $\langle h, r, t \rangle$ where $h$ and $t$ are nodes within the model, and $r$ 
 
 \section{Methods}
 \label{methods}

@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{13}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -15,6 +15,16 @@ Ashouri, A.~H., Elhoushi, M., Hua, Y., Wang, X., Manzoor, M.~A., Chan, B., and
   and Synthesis for Embedded Systems (CASES)}. IEEE, October 2022.
 \newblock \doi{10.1109/cases55004.2022.00008}.
 \newblock URL \url{http://dx.doi.org/10.1109/CASES55004.2022.00008}.
+
+\bibitem[Bordes et~al.(2013)Bordes, Usunier, Garcia-Duran, Weston, and
+  Yakhnenko]{transE}
+Bordes, A., Usunier, N., Garcia-Duran, A., Weston, J., and Yakhnenko, O.
+\newblock Translating embeddings for modeling multi-relational data.
+\newblock In Burges, C., Bottou, L., Welling, M., Ghahramani, Z., and
+  Weinberger, K. (eds.), \emph{Advances in Neural Information Processing
+  Systems}, volume~26. Curran Associates, Inc., 2013.
+\newblock URL
+  \url{https://proceedings.neurips.cc/paper_files/paper/2013/file/1cecc7a77928ca8133fa24680a88d2f9-Paper.pdf}.
 
 \bibitem[Cox(2018)]{cpp-perf-benchmarks}
 Cox, C.
@@ -41,6 +51,10 @@ Lattner, C. and Adve, V.
   Transformation}.
 \newblock In \emph{{Proceedings of the 2004 International Symposium on Code
   Generation and Optimization (CGO'04)}}, Palo Alto, California, Mar 2004.
+
+\bibitem[Mikolov et~al.(2013)Mikolov, Chen, Corrado, and Dean]{word2vec}
+Mikolov, T., Chen, K., Corrado, G., and Dean, J.
+\newblock Efficient estimation of word representations in vector space, 2013.
 
 \bibitem[Schulman et~al.(2017)Schulman, Wolski, Dhariwal, Radford, and
   Klimov]{ppo}
@@ -71,6 +85,17 @@ Trofin, M., Qian, Y., Brevdo, E., Lin, Z., Choromanski, K., and Li, D.
 \newblock {MLGO:} a machine learning guided compiler optimizations framework.
 \newblock \emph{CoRR}, abs/2101.04808, 2021.
 \newblock URL \url{https://arxiv.org/abs/2101.04808}.
+
+\bibitem[VenkataKeerthy et~al.(2020)VenkataKeerthy, Aggarwal, Jain, Desarkar,
+  Upadrasta, and Srikant]{ir2vec}
+VenkataKeerthy, S., Aggarwal, R., Jain, S., Desarkar, M.~S., Upadrasta, R., and
+  Srikant, Y.~N.
+\newblock Ir2v <scp>ec</scp>: Llvm ir based scalable program embeddings.
+\newblock \emph{ACM Transactions on Architecture and Code Optimization},
+  17\penalty0 (4):\penalty0 1–27, December 2020.
+\newblock ISSN 1544-3973.
+\newblock \doi{10.1145/3418463}.
+\newblock URL \url{http://dx.doi.org/10.1145/3418463}.
 
 \bibitem[Williams(1992)]{REINFORCE}
 Williams, R.~J.
