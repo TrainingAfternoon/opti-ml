@@ -39,8 +39,9 @@ cd $LLVM_SRCDIR
 
 ## move over policy
 cd $LLVM_SRCDIR
-rm -rf llvm/lib/Analysis/models/inliner/*
-cp -rf $POLICY_DIR/* llvm/lib/Analysis/models/inliner/
+rm -rf ./llvm/lib/Analysis/models/inliner/*
+mkdir -p ./llvm/lib/Analysis/models/inliner/
+cp -rf $POLICY_DIR/* ./llvm/lib/Analysis/models/inliner/
 
 ## make build directory
 mkdir -p $LLVM_INSTALLDIR
@@ -50,14 +51,14 @@ cd $LLVM_INSTALLDIR
 cmake \
 	-G "Ninja" \
 	-S $LLVM_SRCDIR/llvm \
+	-C ${TFLITE_PATH}/tflite.cmake \
+	-DCMAKE_BUILD_TYPE='Release' \
 	-DLLVM_ENABLE_PROJECTS='clang' \
 	-DCMAKE_INSTALL_PREFIX='${LLVM_INSTALLDIR}' \
-	-DCMAKE_BUILD_TYPE='Release' \
 	-DLLVM_USE_ML_POLICY='Rel' \
 	-DLLVM_TF_AOT_RUNTIME=$TENSORFLOW_AOT_PATH \
 	-DLLVM_USE_LINKER=lld \
-    -DLLVM_ENABLE_LTO=OFF \
-	-C ${TFLITE_PATH}/tflite.cmake
+    -DLLVM_ENABLE_LTO=OFF
 cmake --build .
 
 echo "Done"
